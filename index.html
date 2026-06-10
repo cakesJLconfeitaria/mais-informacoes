@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cakes JL Confeitaria | Gravatal - SC</title>
+  <meta name="description" content="Cakes JL Confeitaria em Gravatal - SC. Bolos, tortas, doces e encomendas. Faça seu pedido!">
+  <meta name="theme-color" content="#f6e3d8" id="theme-color-meta">
+
+  <!-- Open Graph (preview ao compartilhar o link no WhatsApp, Instagram, etc.) -->
+  <meta property="og:title" content="Cakes JL Confeitaria">
+  <meta property="og:description" content="📍 Gravatal - SC | Tortas, doces e encomendas">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="logo.png">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧁</text></svg>">
+
+  <!-- Aplica o tema ANTES da página renderizar (evita "flash" do tema errado no load) -->
+  <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('theme');
+        var theme = saved || 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+
+  <!-- Fontes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* ============================================================
+       TEMA CLARO (padrão)
+       ============================================================ */
+    :root {
+      --bg-grad:        linear-gradient(165deg, #fbeee6 0%, #f6e2d7 45%, #f0d6c8 100%);
+      --bg-radial:      radial-gradient(1200px 600px at 50% -10%, #fcefe6 0%, rgba(252,239,230,0) 60%);
+
+      --card-bg:        linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(255,253,251,0.96) 100%);
+      --card-border:    rgba(255, 255, 255, 0.7);
+
+      --button-bg:      #fffdfb;
+      --button-border:  rgba(140, 90, 68, 0.10);
+      --button-hover:   rgba(191, 138, 112, 0.35);
+
+      --featured-grad:  linear-gradient(135deg, #f7e2d2 0%, #f1cfb9 55%, #ecc4ab 100%);
+      --featured-border:rgba(168, 113, 89, 0.30);
+      --featured-shine: rgba(255, 255, 255, 0.55);
+
+      --social-bg:      #f9efe7;
+      --social-border:  rgba(140, 90, 68, 0.08);
+      --social-bg-hover:#fffdfb;
+
+      --blob-1: #f3c9b4;
+      --blob-2: #e9bfa9;
+      --blob-3: #f7d9c8;
+      --blob-opacity: 0.5;
+
+      --text-primary:   #43302a;
+      --text-secondary: #8a7065;
+      --text-accent:    #8c5a44;
+
+      --rose:           #bf8a70;
+      --rose-deep:      #a87159;
+      --copper:         #8c5a44;
+
+      --toggle-border:  rgba(140, 90, 68, 0.15);
+
+      --shadow-sm:      0 2px 10px rgba(140, 90, 68, 0.08);
+      --shadow-md:      0 10px 30px rgba(140, 90, 68, 0.14);
+      --shadow-lg:      0 18px 50px rgba(140, 90, 68, 0.18);
+
+      --radius: 18px;
+    }
+
+    /* ============================================================
+       TEMA ESCURO (chocolate à noite, com acentos rosé/cobre)
+       ============================================================ */
+    [data-theme="dark"] {
+      --bg-grad:        linear-gradient(165deg, #1c130f 0%, #241812 45%, #2a1c16 100%);
+      --bg-radial:      radial-gradient(1200px 600px at 50% -10%, #321f17 0%, rgba(50,31,23,0) 60%);
+
+      --card-bg:        linear-gradient(180deg, rgba(50, 33, 27, 0.85) 0%, rgba(55, 37, 30, 0.92) 100%);
+      --card-border:    rgba(100, 70, 55, 0.35);
+
+      --button-bg:      #3a261f;
+      --button-border:  rgba(232, 184, 156, 0.12);
+      --button-hover:   rgba(232, 184, 156, 0.40);
+
+      --featured-grad:  linear-gradient(135deg, #5a3a2b 0%, #6f4938 55%, #56362a 100%);
+      --featured-border:rgba(232, 184, 156, 0.30);
+      --featured-shine: rgba(255, 220, 195, 0.18);
+
+      --social-bg:      #3a261f;
+      --social-border:  rgba(232, 184, 156, 0.10);
+      --social-bg-hover:#48302a;
+
+      --blob-1: #3a1f17;
+      --blob-2: #2d1812;
+      --blob-3: #4a2a20;
+      --blob-opacity: 0.55;
+
+      --text-primary:   #f4e6dc;
+      --text-secondary: #c5ad9f;
+      --text-accent:    #e8b89c;
+
+      --rose:           #d99c80;
+      --rose-deep:      #c8896f;
+      --copper:         #e8b89c;
+
+      --toggle-border:  rgba(232, 184, 156, 0.20);
+
+      --shadow-sm:      0 2px 10px rgba(0, 0, 0, 0.4);
+      --shadow-md:      0 10px 30px rgba(0, 0, 0, 0.5);
+      --shadow-lg:      0 18px 50px rgba(0, 0, 0, 0.6);
+    }
+
+    html, body { min-height: 100%; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: var(--text-primary);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px 18px;
+      -webkit-font-smoothing: antialiased;
+      position: relative;
+      overflow-x: hidden;
+      background: var(--bg-radial), var(--bg-grad);
+      transition: background 0.5s ease, color 0.5s ease;
+    }
+
+    /* Manchas suaves de cor ao fundo */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(70px);
+      opacity: var(--blob-opacity);
+      z-index: 0;
+      pointer-events: none;
+      transition: background 0.5s ease, opacity 0.5s ease;
+    }
+    .blob.one  { width: 320px; height: 320px; top: -80px; left: -90px;  background: var(--blob-1); }
+    .blob.two  { width: 360px; height: 360px; bottom: -120px; right: -110px; background: var(--blob-2); }
+    .blob.three{ width: 240px; height: 240px; top: 40%; right: -80px; background: var(--blob-3); opacity: calc(var(--blob-opacity) * 0.8); }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 440px;
+      background: var(--card-bg);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--card-border);
+      border-radius: 30px;
+      padding: 38px 26px 30px;
+      box-shadow: var(--shadow-lg);
+      transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+    }
+
+    /* ---------- Botão de tema (sol/lua) ---------- */
+    .theme-toggle {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid var(--toggle-border);
+      background: var(--button-bg);
+      color: var(--text-accent);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      padding: 0;
+      box-shadow: var(--shadow-sm);
+      transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.15s ease;
+    }
+    .theme-toggle:hover { transform: scale(1.08); }
+    .theme-toggle:active { transform: scale(0.94); }
+    .theme-toggle:focus-visible {
+      outline: 3px solid var(--rose);
+      outline-offset: 2px;
+    }
+    .theme-toggle svg {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .theme-toggle .icon-sun  { opacity: 0; transform: rotate(-90deg) scale(0.5); }
+    .theme-toggle .icon-moon { opacity: 1; transform: rotate(0deg) scale(1); }
+    [data-theme="dark"] .theme-toggle .icon-sun  { opacity: 1; transform: rotate(0deg) scale(1); }
+    [data-theme="dark"] .theme-toggle .icon-moon { opacity: 0; transform: rotate(90deg) scale(0.5); }
+
+    /* ---------- Cabeçalho ---------- */
+    .logo-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+    .logo-ring {
+      position: relative;
+      width: 132px;
+      height: 132px;
+      border-radius: 50%;
+      padding: 5px;
+      background: conic-gradient(from 200deg, #eccbbb, #bf8a70, #f4ddd1, #d3a18b, #eccbbb);
+      box-shadow: var(--shadow-md);
+    }
+    .logo {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #fffdfb;
+      display: block;
+    }
+
+    .title {
+      text-align: center;
+      font-family: 'Fraunces', Georgia, serif;
+      font-optical-sizing: auto;
+      font-weight: 600;
+      font-size: 31px;
+      line-height: 1.12;
+      letter-spacing: -0.4px;
+      margin-bottom: 8px;
+      background: linear-gradient(100deg, var(--copper), var(--rose) 55%, var(--rose-deep));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      transition: background 0.5s ease;
+    }
+
+    .location {
+      text-align: center;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+      transition: color 0.5s ease;
+    }
+
+    .socials {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 26px;
+    }
+    .socials a {
+      width: 42px;
+      height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      color: var(--text-accent);
+      background: var(--social-bg);
+      border: 1px solid var(--social-border);
+      transition: transform 0.18s ease, background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .socials a:hover {
+      transform: translateY(-2px);
+      background: var(--social-bg-hover);
+      color: var(--rose-deep);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ---------- Links ---------- */
+    .links {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .link-button {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: var(--button-bg);
+      border: 1px solid var(--button-border);
+      border-radius: var(--radius);
+      padding: 17px 18px;
+      text-decoration: none;
+      color: var(--text-primary);
+      font-size: 16px;
+      font-weight: 600;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.18s ease, background 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+      overflow: hidden;
+    }
+    .link-button:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--button-hover);
+    }
+    .link-button:focus-visible {
+      outline: 3px solid var(--rose);
+      outline-offset: 2px;
+    }
+
+    .link-button .icon {
+      flex-shrink: 0;
+      width: 26px;
+      height: 26px;
+      color: var(--rose-deep);
+      transition: color 0.3s ease;
+    }
+    .link-button .label {
+      flex: 1;
+      text-align: center;
+      padding: 0 10px;
+    }
+    .link-button .spacer { width: 26px; flex-shrink: 0; }
+
+    /* ---------- Botão em destaque: Festival (tempo limitado) ---------- */
+    .link-button.featured {
+      background: var(--featured-grad);
+      border: 1px solid var(--featured-border);
+      color: var(--text-accent);
+      padding-top: 31px;
+    }
+    .link-button.featured .icon { color: var(--text-accent); }
+    .link-button.featured:hover { border-color: var(--button-hover); }
+
+    /* Brilho que cruza o botão de tempos em tempos */
+    .link-button.featured::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -60%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(100deg, transparent, var(--featured-shine), transparent);
+      transform: skewX(-18deg);
+      animation: shine 4.5s ease-in-out infinite;
+    }
+
+    .badge {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: #fffdfb;
+      background: linear-gradient(100deg, #a87159, #8c5a44);
+      padding: 4px 12px;
+      border-radius: 0 0 10px 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    }
+    .badge .dot {
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #ffe9dd;
+      margin-right: 5px;
+      vertical-align: middle;
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes shine {
+      0%, 60% { left: -60%; }
+      100% { left: 130%; }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(0.75); }
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 26px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      opacity: 0.75;
+      transition: color 0.5s ease;
+    }
+
+    /* ---------- Responsivo ---------- */
+    @media (min-width: 600px) {
+      .container { max-width: 460px; padding: 42px 32px 34px; }
+      .title { font-size: 33px; }
+    }
+    @media (min-width: 1024px) {
+      body { padding: 40px; }
+      .container { max-width: 470px; }
+      .blob.one { width: 420px; height: 420px; }
+      .blob.two { width: 460px; height: 460px; }
+    }
+    @media (max-width: 380px) {
+      .container { padding: 30px 18px 24px; border-radius: 26px; }
+      .title { font-size: 27px; }
+      .logo-ring { width: 116px; height: 116px; }
+      .link-button { padding: 16px; font-size: 15px; }
+      .theme-toggle { top: 10px; right: 10px; width: 34px; height: 34px; }
+    }
+
+    /* Acessibilidade: respeita quem prefere menos animação */
+    @media (prefers-reduced-motion: reduce) {
+      .link-button.featured::after { animation: none; display: none; }
+      .badge .dot { animation: none; }
+      .link-button, .socials a, .theme-toggle, .theme-toggle svg,
+      body, .container, .title, .location, .footer, .blob { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="blob one"></div>
+  <div class="blob two"></div>
+  <div class="blob three"></div>
+
+  <main class="container">
+
+    <!-- Botão sol/lua: alterna o tema -->
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Alternar entre modo claro e escuro">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4"></circle>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+    </button>
+
+    <div class="logo-wrapper">
+      <div class="logo-ring">
+        <img class="logo" src="logo.png" alt="Cakes JL Confeitaria">
+      </div>
+    </div>
+
+    <h1 class="title">Cakes JL Confeitaria</h1>
+    <p class="location">📍 Gravatal&nbsp;-&nbsp;SC</p>
+
+    <div class="socials">
+      <a href="https://www.instagram.com/cakesjlconfeitaria" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+        </svg>
+      </a>
+      <a href="https://www.tiktok.com/@cakesjlconfeitaria" target="_blank" rel="noopener" aria-label="TikTok">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5.8 20.1a6.34 6.34 0 0 0 10.86-4.43V8.51a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.84-.04z"/>
+        </svg>
+      </a>
+      <a href="https://www.facebook.com/people/Cakes-JL-Confeitaria/61590743607528/" target="_blank" rel="noopener" aria-label="Facebook">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/>
+        </svg>
+      </a>
+      <a href="https://wa.me/554899442988?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20Cakes%20JL%20Confeitaria%20e%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es." target="_blank" rel="noopener" aria-label="WhatsApp">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M17.6 6.31A7.85 7.85 0 0 0 12.05 4a7.94 7.94 0 0 0-6.88 11.9L4 20l4.2-1.1a7.93 7.93 0 0 0 3.84.98h.01a7.94 7.94 0 0 0 5.55-13.57zM12.05 18.5h-.01a6.6 6.6 0 0 1-3.36-.92l-.24-.14-2.5.66.67-2.43-.16-.25a6.61 6.61 0 0 1 10.27-8.2 6.55 6.55 0 0 1 1.93 4.7 6.61 6.61 0 0 1-6.6 6.58zm3.62-4.94c-.2-.1-1.18-.58-1.36-.65-.18-.07-.31-.1-.45.1s-.51.65-.63.78c-.12.14-.23.16-.43.05a5.4 5.4 0 0 1-1.6-.99 5.96 5.96 0 0 1-1.1-1.37c-.12-.2-.01-.31.09-.41.09-.09.2-.23.3-.35.1-.12.13-.2.2-.34.06-.13.03-.25-.02-.35-.05-.1-.45-1.09-.62-1.49-.16-.39-.33-.34-.45-.34l-.39-.01c-.13 0-.34.05-.52.25s-.69.67-.69 1.64.7 1.91.8 2.04 1.39 2.13 3.37 2.99c.47.2.84.32 1.13.41.47.15.9.13 1.24.08.38-.06 1.17-.48 1.34-.94.16-.46.16-.86.11-.94-.05-.08-.18-.13-.38-.23z"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="links">
+
+      <!-- ===== BOTÃO 1: FESTIVAL DE FATIAS (evento temporário) ===== -->
+      <!-- Para esconder quando não tiver festival: apague este bloco <a>...</a> inteiro. -->
+      <a class="link-button featured" href="https://wa.me/554899442988?text=Ol%C3%A1!%20Vi%20sobre%20o%204%C2%BA%20Festival%20de%20Fatias%20no%20Instagram%20e%20quero%20reservar%20minhas%20fatias!" target="_blank" rel="noopener">
+        <span class="badge"><span class="dot"></span>Por tempo limitado</span>
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5.5 11h13l-1.3 8.1a1 1 0 0 1-1 .9H7.8a1 1 0 0 1-1-.9L5.5 11z"></path>
+          <path d="M7.2 11a2.5 2.5 0 0 1-.2-5 3 3 0 0 1 5.9-.8A2.6 2.6 0 0 1 17 6a2.5 2.5 0 0 1-.2 5"></path>
+          <line x1="9.5" y1="14" x2="9.2" y2="17"></line>
+          <line x1="12" y1="14" x2="12" y2="17.2"></line>
+          <line x1="14.5" y1="14" x2="14.8" y2="17"></line>
+        </svg>
+        <span class="label">Reserva 4º Festival de Fatias</span>
+        <span class="spacer"></span>
+      </a>
+
+      <!-- ===== BOTÃO 2: CARDÁPIO (encomendas do dia a dia) ===== -->
+      <a class="link-button" href="https://drive.google.com/file/d/1xw1CL-GWQi8aISf0zaQtDu23W0LLuDvS/view?usp=sharing" target="_blank" rel="noopener">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
+          <circle cx="12" cy="10" r="2.5"></circle>
+          <path d="M8 16c0-2.2 1.8-4 4-4s4 1.8 4 4"></path>
+        </svg>
+        <span class="label">Cardápio - Encomendas</span>
+        <span class="spacer"></span>
+      </a>
+
+      <!-- ===== BOTÃO 3: PEDIDO PELO WHATSAPP ===== -->
+      <a class="link-button" href="https://wa.me/554899442988?text=Ol%C3%A1%2C%20poderia%20me%20passar%20mais%20informa%C3%A7%C3%B5es%20sobre%20a%20encomenda%20das%20tortas%3F" target="_blank" rel="noopener">
+        <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M17.6 6.31A7.85 7.85 0 0 0 12.05 4a7.94 7.94 0 0 0-6.88 11.9L4 20l4.2-1.1a7.93 7.93 0 0 0 3.84.98h.01a7.94 7.94 0 0 0 5.55-13.57zM12.05 18.5h-.01a6.6 6.6 0 0 1-3.36-.92l-.24-.14-2.5.66.67-2.43-.16-.25a6.61 6.61 0 0 1 10.27-8.2 6.55 6.55 0 0 1 1.93 4.7 6.61 6.61 0 0 1-6.6 6.58zm3.62-4.94c-.2-.1-1.18-.58-1.36-.65-.18-.07-.31-.1-.45.1s-.51.65-.63.78c-.12.14-.23.16-.43.05a5.4 5.4 0 0 1-1.6-.99 5.96 5.96 0 0 1-1.1-1.37c-.12-.2-.01-.31.09-.41.09-.09.2-.23.3-.35.1-.12.13-.2.2-.34.06-.13.03-.25-.02-.35-.05-.1-.45-1.09-.62-1.49-.16-.39-.33-.34-.45-.34l-.39-.01c-.13 0-.34.05-.52.25s-.69.67-.69 1.64.7 1.91.8 2.04 1.39 2.13 3.37 2.99c.47.2.84.32 1.13.41.47.15.9.13 1.24.08.38-.06 1.17-.48 1.34-.94.16-.46.16-.86.11-.94-.05-.08-.18-.13-.38-.23z"/>
+        </svg>
+        <span class="label">Faça seu pedido aqui</span>
+        <span class="spacer"></span>
+      </a>
+
+    </div>
+
+    <p class="footer">© Cakes JL Confeitaria · Gravatal - SC</p>
+
+  </main>
+
+  <!-- Lógica do interruptor de tema -->
+  <script>
+    (function() {
+      var btn = document.getElementById('themeToggle');
+      var meta = document.getElementById('theme-color-meta');
+      var themeColors = { light: '#f6e3d8', dark: '#1c130f' };
+
+      // Atualiza a cor da barra do navegador (Safari/iOS, Chrome Android)
+      function updateMeta(theme) {
+        if (meta) meta.setAttribute('content', themeColors[theme] || themeColors.light);
+      }
+      updateMeta(document.documentElement.getAttribute('data-theme') || 'light');
+
+      btn.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme') || 'light';
+        var next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        updateMeta(next);
+        try { localStorage.setItem('theme', next); } catch (e) { /* ignore */ }
+      });
+    })();
+  </script>
+</body>
+</html>
