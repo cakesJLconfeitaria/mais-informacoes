@@ -1,65 +1,118 @@
 # Cakes JL Confeitaria — Página de Links
 
-Página estilo "link na bio" (tipo Linktree), em HTML/CSS puro, hospedada de graça no GitHub Pages. Sem propaganda.
+Página estilo **Linktree**, desenvolvida em **HTML, CSS e JavaScript puro**, hospedada gratuitamente no **GitHub Pages**.
+
+O projeto foi criado para disponibilizar rapidamente os cardápios da confeitaria, facilitar o contato via WhatsApp e reunir as redes sociais em uma única página, sem depender de serviços como Linktree ou Google Drive.
 
 ---
 
-## 📁 Arquivos do projeto
-- `index.html` — a página (arquivo único, sem dependências)
-- `logo.png` — a logo da confeitaria
-- `README.md` — este guia
+## 📁 Estrutura do projeto
+
+```text
+/
+├── index.html
+├── logo.png
+├── cardapio-encomendas.pdf
+├── cardapio-festival-fatias.pdf
+└── README.md
+```
 
 ---
 
-## 🔘 Ordem dos botões (de cima pra baixo)
-1. **Reserva 4º Festival de Fatias** → WhatsApp (mensagem já preenchida sobre as fatias) — botão em destaque com etiqueta "Por tempo limitado".
-2. **Cardápio - Encomendas** → cardápio no Google Drive.
-3. **Faça seu pedido aqui** → WhatsApp (mensagem já preenchida sobre encomenda de tortas).
+## 🔘 Ordem dos botões
+
+1. **Cardápio 8º Festival de Fatias**
+   - Arquivo: `cardapio-festival-fatias.pdf`
+   - Botão em destaque com animação e selo **"Por tempo limitado"**.
+
+2. **Cardápio - Encomendas**
+   - Arquivo: `cardapio-encomendas.pdf`
+
+3. **Faça sua encomenda aqui**
+   - Abre diretamente uma conversa no WhatsApp com mensagem automática.
 
 ---
 
-## ✏️ Como editar os links
-Abra o `index.html` em qualquer editor de texto e procure pelos comentários `<!-- BOTÃO 1 -->`, `<!-- BOTÃO 2 -->`, `<!-- BOTÃO 3 -->`.
+## ✏️ Como atualizar os cardápios
 
-**WhatsApp:** o número está no formato `wa.me/55` + DDD + número.
-Exemplo: `(48) 99999-8888` vira `wa.me/5548999998888`.
-Para mudar a mensagem automática, edite o texto depois de `?text=`.
+Não é necessário editar o `index.html`.
 
-**Instagram / TikTok:** procure pelos endereços `instagram.com/...` e `tiktok.com/...`.
+Sempre que houver um novo cardápio, basta substituir os arquivos mantendo exatamente estes nomes:
 
----
+- `cardapio-encomendas.pdf`
+- `cardapio-festival-fatias.pdf`
 
-## 🎪 Quando o Festival acabar (esconder o botão)
-No `index.html`, ache o bloco marcado como `BOTÃO 1: FESTIVAL DE FATIAS`.
-Para esconder, apague todo o trecho de `<a class="link-button featured" ...>` até o `</a>` correspondente.
-Quando voltar a ter festival, é só colar o trecho de volta. (Dica: guarde uma cópia desse bloco num bloco de notas pra reusar.)
+Depois faça o commit no GitHub.
+
+O GitHub Pages atualizará automaticamente o site.
 
 ---
 
-## 🌙 Modo claro / escuro
-A página tem um botão sol/lua no canto superior direito. Ao clicar, alterna entre os dois temas.
+## 🌙 Recursos da página
 
-A página **sempre abre no modo claro** por padrão. Se a pessoa preferir o escuro, basta clicar no botão — e essa escolha fica salva no navegador (via `localStorage`), então da próxima vez que ela visitar, abre direto no tema que escolheu.
-
----
-
-## 🚀 Publicar no GitHub Pages (resumo)
-1. Crie um repositório **público** em github.com.
-2. **Add file → Upload files** e suba `index.html`, `logo.png` e `README.md`. Commit.
-3. **Settings → Pages → Source: Deploy from a branch → Branch: main → /(root) → Save**.
-4. Em ~1 min sua página estará em `https://SEU-USUARIO.github.io/NOME-DO-REPO/`.
-5. Coloque esse link na bio do Instagram/TikTok no lugar do Linktree.
-
-Para atualizar depois: abra o arquivo no GitHub, clique no lápis ✏️, edite e **Commit changes**.
+- Tema claro e escuro
+- Preferência de tema salva automaticamente
+- Layout responsivo
+- Compatível com celulares, tablets e computadores
+- Botão do Festival com destaque visual e animação
+- PDFs abertos diretamente do GitHub Pages (sem Google Drive)
+- Compartilhamento otimizado para WhatsApp e redes sociais
 
 ---
 
-## 🎨 Cores
-No topo do `<style>`, a seção `:root` tem todas as cores em variáveis (paleta rosé/rose gold da logo). Mude ali e a página inteira acompanha.
+## 🚀 Publicação no GitHub Pages
+
+Envie estes arquivos para o repositório:
+
+- `index.html`
+- `logo.png`
+- `cardapio-encomendas.pdf`
+- `cardapio-festival-fatias.pdf`
+- `README.md`
+
+Depois:
+
+1. Faça o **Commit**.
+2. Aguarde cerca de 1 minuto.
+3. O GitHub Pages publicará automaticamente as alterações.
 
 ---
 
-## ❓ Dúvidas rápidas
-- **Tem propaganda?** Não. GitHub Pages não insere anúncios.
-- **É grátis pra sempre?** Sim, para repositórios públicos (até 100 GB de tráfego/mês).
-- **Funciona no celular, tablet e PC?** Sim, é responsiva.
+## 📌 Para futuras atualizações
+
+### Novo Festival
+
+Substitua apenas:
+
+```text
+cardapio-festival-fatias.pdf
+```
+
+Caso o número do festival mude (9º, 10º, etc.), altere apenas o texto do botão dentro do `index.html`.
+
+### Novo cardápio de encomendas
+
+Substitua somente:
+
+```text
+cardapio-encomendas.pdf
+```
+
+Sem necessidade de alterar links.
+
+---
+
+## 📱 Redes sociais
+
+A página possui acesso rápido para:
+
+- Instagram
+- TikTok
+- Facebook
+- WhatsApp
+
+---
+
+## 📄 Licença
+
+Projeto desenvolvido exclusivamente para a **Cakes JL Confeitaria**.
