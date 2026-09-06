@@ -51,10 +51,11 @@
       --button-border:  rgba(140, 90, 68, 0.10);
       --button-hover:   rgba(191, 138, 112, 0.35);
 
-      /* Cores usadas pelo botão do 10º Festival de Fatias */
+      /* Cores usadas pelo botão do Festival de Fatias */
       --featured-grad:  linear-gradient(135deg, #f7e2d2 0%, #f1cfb9 55%, #ecc4ab 100%);
       --featured-border:rgba(168, 113, 89, 0.30);
       --featured-shine: rgba(255, 255, 255, 0.55);
+      --featured-glow:  rgba(191, 138, 112, 0.45);
 
       --social-bg:      #f9efe7;
       --social-border:  rgba(140, 90, 68, 0.08);
@@ -96,10 +97,11 @@
       --button-border:  rgba(232, 184, 156, 0.12);
       --button-hover:   rgba(232, 184, 156, 0.40);
 
-      /* Cores usadas pelo botão do 10º Festival de Fatias */
+      /* Cores usadas pelo botão do Festival de Fatias */
       --featured-grad:  linear-gradient(135deg, #5a3a2b 0%, #6f4938 55%, #56362a 100%);
       --featured-border:rgba(232, 184, 156, 0.30);
       --featured-shine: rgba(255, 220, 195, 0.18);
+      --featured-glow:  rgba(232, 184, 156, 0.35);
 
       --social-bg:      #3a261f;
       --social-border:  rgba(232, 184, 156, 0.10);
@@ -331,24 +333,42 @@
 
 
     /* ============================================================
-       ESTILOS DO BOTÃO DO 10º FESTIVAL DE FATIAS
-       (botão em destaque, selo com a data e animações)
+       ESTILOS DO BOTÃO DO FESTIVAL DE FATIAS
+       (botão em destaque, selo pulsante "por tempo limitado" pendurado
+       na borda de cima, local + data/hora sob o título, separador e animações)
        Para desativar: envolva o bloco abaixo em marcas de
        comentário e comente também as variáveis --featured-* acima.
        ============================================================ */
     .link-button.featured {
+      overflow: visible;        /* deixa o selo "pendurar" na borda de cima */
+      padding: 14px 14px 12px;
       background: var(--featured-grad);
       border: 1px solid var(--featured-border);
       color: var(--text-accent);
-      padding-top: 31px;
+      animation: glow 3s ease-in-out infinite; /* brilho suave pulsando na borda */
     }
     .link-button.featured .icon { color: var(--text-accent); }
+    .link-button.featured .label { line-height: 1.2; padding: 0 2px; }
+    .link-button.featured .spacer { width: 16px; } /* menor que nos outros botões para o título caber em uma linha em telas de 360px */
+    /* Local e data/hora: linhas pequenas em cobre sob o título (lado a lado quando cabe) */
+    .link-button.featured .details { display:flex; flex-wrap:wrap; justify-content:center; gap:1px 10px; margin-top:4px; font-size:10.5px; font-weight:600; letter-spacing:.1px; line-height:1.3; }
+    .link-button.featured .details > span { display:inline-flex; align-items:center; gap:4px; white-space:nowrap; }
+    .link-button.featured .details svg { width:12px; height:12px; flex-shrink:0; opacity:.9; }
+    /* Camada que segura o reflexo passando (precisa de overflow:hidden separado, já que o botão agora é visible) */
+    .link-button.featured .sheen { position:absolute; top:0; left:0; right:0; bottom:0; border-radius:inherit; overflow:hidden; pointer-events:none; }
+    /* Separador com título entre o botão do festival e os botões de encomenda (linha — texto — linha) */
+    .divider { display:flex; align-items:center; gap:10px; margin:2px 6px; font-size:11px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--text-secondary); transition:color .5s ease; }
+    .divider::before, .divider::after { content:""; flex:1; height:1px; background:linear-gradient(90deg, transparent, var(--button-hover)); opacity:.8; }
+    .divider::after { background:linear-gradient(90deg, var(--button-hover), transparent); }
     .link-button.featured:hover { border-color: var(--button-hover); }
-    .link-button.featured::after {content:"";position:absolute;top:0;left:-60%;width:50%;height:100%;background:linear-gradient(100deg,transparent,var(--featured-shine),transparent);transform:skewX(-18deg);animation:shine 4.5s ease-in-out infinite;}
-    .badge{position:absolute;top:0;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#fffdfb;background:linear-gradient(100deg,#a87159,#8c5a44);padding:4px 12px;border-radius:0 0 10px 10px;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+    .link-button.featured .sheen::after {content:"";position:absolute;top:0;left:-60%;width:50%;height:100%;background:linear-gradient(100deg,transparent,var(--featured-shine),transparent);transform:skewX(-18deg);animation:shine 4.5s ease-in-out infinite;}
+    /* Selo do topo ("por tempo limitado"): pulsa inteiro, em sincronia com o pontinho */
+    .badge{position:absolute;top:-9px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#fffdfb;background:linear-gradient(100deg,#a87159,#8c5a44);padding:3px 11px;border-radius:999px;box-shadow:0 2px 6px rgba(0,0,0,.25);animation:badgePulse 1.8s ease-in-out infinite}
     .badge .dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:#ffe9dd;margin-right:5px;vertical-align:middle;animation:pulse 1.8s ease-in-out infinite}
     @keyframes shine{0%,60%{left:-60%}100%{left:130%}}
     @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.75)}}
+    @keyframes badgePulse{0%,100%{opacity:1;transform:translateX(-50%) scale(1)}50%{opacity:.55;transform:translateX(-50%) scale(.96)}}
+    @keyframes glow{0%,100%{box-shadow:var(--shadow-sm),0 0 0 0 var(--featured-glow)}50%{box-shadow:var(--shadow-md),0 0 22px 2px var(--featured-glow)}}
     /* ============================================================ */
 
     .footer {
@@ -381,8 +401,10 @@
 
     /* Acessibilidade: respeita quem prefere menos animação */
     @media (prefers-reduced-motion: reduce) {
-      /* Regras do botão do 10º Festival de Fatias */
-      .link-button.featured::after { animation: none; display: none; }
+      /* Regras do botão do Festival de Fatias */
+      .link-button.featured { animation: none; }
+      .link-button.featured .sheen::after { animation: none; display: none; }
+      .badge { animation: none; }
       .badge .dot { animation: none; }
       .link-button, .socials a, .theme-toggle, .theme-toggle svg,
       body, .container, .title, .location, .footer, .blob { transition: none; }
@@ -443,15 +465,25 @@
 
     <div class="links">
 
-      <!-- ===== BOTÃO 1: CARDÁPIO 10º FESTIVAL DE FATIAS ===== -->
-      <a class="link-button featured" href="cardapio-festival-fatias.pdf" target="_blank" rel="noopener">
-        <span class="badge"><span class="dot"></span>Sábado, 05/09 &bull; a partir das 9h</span>
+      <!-- ===== BOTÃO 1: CARDÁPIO FESTIVAL DE FATIAS ===== -->
+      <a class="link-button featured" href="cardapio-festival-fatias.pdf" data-no-cache target="_blank" rel="noopener">
+        <span class="badge"><span class="dot"></span>Por tempo limitado</span>
         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 11h13l-1.3 8.1a1 1 0 0 1-1 .9H7.8a1 1 0 0 1-1-.9L5.5 11z"></path><path d="M7.2 11a2.5 2.5 0 0 1-.2-5 3 3 0 0 1 5.9-.8A2.6 2.6 0 0 1 17 6a2.5 2.5 0 0 1-.2 5"></path><line x1="9.5" y1="14" x2="9.2" y2="17"></line><line x1="12" y1="14" x2="12" y2="17.2"></line><line x1="14.5" y1="14" x2="14.8" y2="17"></line></svg>
-        <span class="label">Cardápio 10º Festival de Fatias</span><span class="spacer"></span>
+        <span class="label">
+          Cardápio - Festival de Fatias
+          <span class="details">
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6-5.3-6-11a6 6 0 0 1 12 0c0 5.7-6 11-6 11z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>Termas do Gravatal</span>
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>Sábado, 12/09 &bull; a partir das 9h</span>
+          </span>
+        </span><span class="spacer"></span>
+        <span class="sheen" aria-hidden="true"></span>
       </a>
 
+      <!-- Separador com título da seção: pertence ao botão 1 (se remover o botão, remova este bloco também) -->
+      <div class="divider"><span>Encomendas</span></div>
+
 <!-- ===== BOTÃO 2: CARDÁPIO (encomendas do dia a dia) ===== -->
-      <a class="link-button" href="cardapio-encomendas.pdf" target="_blank" rel="noopener">
+      <a class="link-button" href="cardapio-encomendas.pdf" data-no-cache target="_blank" rel="noopener">
         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
           <circle cx="12" cy="10" r="2.5"></circle>
@@ -472,9 +504,30 @@
 
     </div>
 
-    <p class="footer">© Cakes JL Confeitaria · Gravatal - SC</p>
+    <p class="footer">© Cakes JL Confeitaria</p>
 
   </main>
+
+  <!-- Cardápios sempre atualizados
+       O navegador (e a CDN do GitHub Pages) pode guardar uma cópia antiga do PDF.
+       Este script adiciona um "carimbo" de tempo na URL dos links marcados com
+       data-no-cache (ex.: cardapio-encomendas.pdf?v=1725600000000) ao carregar a
+       página e a cada toque/clique. Como a URL muda sempre, o arquivo é baixado
+       de novo do repositório. O GitHub ignora o "?v=..." e entrega o mesmo PDF. -->
+  <script>
+    (function() {
+      var links = document.querySelectorAll('a[data-no-cache]');
+      Array.prototype.forEach.call(links, function(a) {
+        var base = a.getAttribute('href'); // URL original, sem carimbo
+        function carimbar() {
+          a.setAttribute('href', base + (base.indexOf('?') > -1 ? '&' : '?') + 'v=' + Date.now());
+        }
+        carimbar();                                  // ao carregar a página
+        a.addEventListener('pointerdown', carimbar); // toque/mouse (inclui "pressionar e segurar")
+        a.addEventListener('click', carimbar);       // teclado (Enter) e demais casos
+      });
+    })();
+  </script>
 
   <!-- Lógica do interruptor de tema -->
   <script>
