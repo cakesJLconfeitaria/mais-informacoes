@@ -3708,3 +3708,242 @@ h1,h2,h3,.torta-builder-start h2,.addons-head h2 {
   letter-spacing: 0;
   color: var(--muted);
 }
+
+/* Data e horário com a mesma apresentação em celulares e computadores. */
+.schedule-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 46px;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--panel);
+  color: var(--ink);
+  font-size: 13px;
+  text-align: left;
+}
+
+.schedule-trigger span {
+  flex: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.schedule-trigger svg {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--accent);
+}
+
+.schedule-trigger svg:last-child {
+  flex-basis: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.schedule-trigger.is-empty {
+  color: var(--muted);
+}
+
+.schedule-trigger[aria-invalid=true] {
+  border-color: #b44343;
+}
+
+.addons-picker.enhanced.schedule-picker {
+  align-items: center;
+  top: var(--agenda-topo,0px);
+  bottom: auto;
+  height: var(--agenda-altura,100%);
+  padding: 12px;
+}
+
+.addons-picker.enhanced.schedule-picker .addons-box {
+  max-width: 372px;
+  max-height: calc(var(--agenda-altura,100vh) - 24px);
+  max-height: calc(var(--agenda-altura,100dvh) - 24px);
+  padding: 0 16px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 12px 40px #0003;
+}
+
+.schedule-picker .addons-head {
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.schedule-picker .addons-head h2 {
+  margin: 0;
+  font-size: 23px;
+  font-weight: 500;
+}
+
+.schedule-picker .addons-close {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+}
+
+.schedule-hint {
+  margin: 4px 0 14px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.calendar-nav {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: 4px;
+  margin: 12px 0;
+  text-align: center;
+}
+
+.calendar-nav strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.schedule-step {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--ink);
+  font-size: 25px;
+  line-height: 1;
+}
+
+.schedule-step:disabled {
+  opacity: .3;
+  cursor: default;
+}
+
+.calendar-week,.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7,minmax(0,1fr));
+  gap: 3px;
+  text-align: center;
+}
+
+.calendar-week {
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.calendar-day {
+  min-width: 0;
+  min-height: 42px;
+  padding: 4px 0;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.calendar-day:disabled {
+  opacity: .3;
+  cursor: default;
+}
+
+.calendar-day[aria-pressed=true] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--panel);
+}
+
+.calendar-day:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 0;
+}
+
+.calendar-help {
+  margin: 14px 0 0;
+  text-align: center;
+}
+
+.time-fields {
+  display: grid;
+  grid-template-columns: 82px 24px 82px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0 18px;
+}
+
+.time-part {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.time-part label {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.time-part input {
+  width: 82px;
+  height: 66px;
+  padding: 4px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: var(--soft);
+  color: var(--ink);
+  font: inherit;
+  font-size: 32px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.time-part input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.time-separator {
+  padding-top: 26px;
+  font-size: 30px;
+  text-align: center;
+}
+
+.schedule-error {
+  margin: 0 0 10px;
+  color: #9f2f2f;
+  font-size: 12px;
+}
+
+.schedule-error:empty {
+  display: none;
+}
+
+.schedule-picker .button:disabled {
+  opacity: .45;
+  cursor: default;
+}
+
+[data-theme=dark] .schedule-error {
+  color: #f5b3b3;
+}
+
+[data-theme=dark] .schedule-trigger[aria-invalid=true] {
+  border-color: #f5b3b3;
+}
+
+@media(hover:hover) {
+  .schedule-trigger:hover,.schedule-step:not(:disabled):hover,.calendar-day:not(:disabled):not([aria-pressed=true]):hover {
+    border-color: var(--accent);
+    background: var(--soft);
+  }
+}

@@ -1183,6 +1183,284 @@
     var p = iso.split('-');
     return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : iso;
   }
+  /* Controles próprios evitam os calendários e relógios diferentes de cada aparelho.
+     Os campos originais guardam os valores ISO usados na validação e na mensagem. */
+  function iniciarAgendamento(dataEl, horaEl, obterLimite) {
+    var campos = { data: dataEl, hora: horaEl };
+    var botoes = {};
+    var calendarioIcone = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 11h18m-14 4h3m4 0h3"/></svg>';
+    var relogioIcone = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+    var picker = document.createElement('section');
+    picker.className = 'addons-picker enhanced schedule-picker';
+    picker.id = 'agendamento-popup';
+    picker.hidden = true;
+    picker.setAttribute('role', 'dialog');
+    picker.setAttribute('aria-modal', 'true');
+    picker.setAttribute('aria-labelledby', 'agendamento-titulo');
+    picker.setAttribute('aria-describedby', 'agendamento-dica');
+    picker.innerHTML =
+      '<div class="addons-box"><header class="addons-head"><h2 id="agendamento-titulo"></h2>' +
+      '<button type="button" class="addons-close" data-agenda-fechar aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header>' +
+      '<p class="schedule-hint" id="agendamento-dica"></p>' +
+      '<div data-agenda-calendario><div class="calendar-nav">' +
+      '<button type="button" class="schedule-step" data-mes="-1" aria-label="Mês anterior">‹</button>' +
+      '<strong id="agendamento-mes" aria-live="polite" aria-atomic="true"></strong>' +
+      '<button type="button" class="schedule-step" data-mes="1" aria-label="Próximo mês">›</button></div>' +
+      '<div class="calendar-week" aria-hidden="true"><span>dom</span><span>seg</span><span>ter</span><span>qua</span><span>qui</span><span>sex</span><span>sáb</span></div>' +
+      '<div class="calendar-days" role="group" aria-labelledby="agendamento-mes" data-agenda-dias></div>' +
+      '<p class="schedule-hint calendar-help">Toque em um dia para escolher.</p></div>' +
+      '<form data-agenda-relogio novalidate hidden><div class="time-fields">' +
+      '<div class="time-part"><label for="agendamento-horas">Hora</label>' +
+      '<button type="button" class="schedule-step" data-ajuste="1" data-parte="horas" aria-label="Aumentar hora">+</button>' +
+      '<input id="agendamento-horas" type="text" inputmode="numeric" maxlength="2" autocomplete="off" placeholder="--" aria-describedby="agendamento-hora-dica agendamento-hora-erro">' +
+      '<button type="button" class="schedule-step" data-ajuste="-1" data-parte="horas" aria-label="Diminuir hora">−</button></div>' +
+      '<span class="time-separator" aria-hidden="true">:</span>' +
+      '<div class="time-part"><label for="agendamento-minutos">Minutos</label>' +
+      '<button type="button" class="schedule-step" data-ajuste="1" data-parte="minutos" aria-label="Aumentar minutos">+</button>' +
+      '<input id="agendamento-minutos" type="text" inputmode="numeric" maxlength="2" autocomplete="off" placeholder="--" aria-describedby="agendamento-hora-dica agendamento-hora-erro">' +
+      '<button type="button" class="schedule-step" data-ajuste="-1" data-parte="minutos" aria-label="Diminuir minutos">−</button></div></div>' +
+      '<p class="schedule-hint" id="agendamento-hora-dica">Toque nos números para digitar ou use + e −.</p>' +
+      '<p class="schedule-error" id="agendamento-hora-erro" role="status" aria-live="polite"></p>' +
+      '<footer class="addons-foot"><button type="submit" class="button" data-agenda-ok>Confirmar horário</button></footer></form></div>';
+    document.body.appendChild(picker);
+    var painel = document.querySelector('.panel');
+    var fechar = picker.querySelector('[data-agenda-fechar]');
+    var calendario = picker.querySelector('[data-agenda-calendario]');
+    var relogio = picker.querySelector('[data-agenda-relogio]');
+    var dias = picker.querySelector('[data-agenda-dias]');
+    var titulo = picker.querySelector('#agendamento-titulo');
+    var dica = picker.querySelector('#agendamento-dica');
+    var horas = picker.querySelector('#agendamento-horas');
+    var minutos = picker.querySelector('#agendamento-minutos');
+    var erroHora = picker.querySelector('#agendamento-hora-erro');
+    var confirmar = picker.querySelector('[data-agenda-ok]');
+    var mesVisivel = '', diaFoco = '', ativo = '', painelOculto = null;
+    var formatoMes = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+    var formatoDia = new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+    // A área visível encolhe quando o teclado do celular abre.
+    function ajustarVisor() {
+      if (picker.hidden) return;
+      var visor = window.visualViewport;
+      var altura = visor ? Math.min(window.innerHeight, visor.height) : window.innerHeight;
+      picker.style.setProperty('--agenda-altura', altura + 'px');
+      picker.style.setProperty('--agenda-topo', (visor ? visor.offsetTop : 0) + 'px');
+    }
+    window.addEventListener('resize', ajustarVisor);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', ajustarVisor);
+      window.visualViewport.addEventListener('scroll', ajustarVisor);
+    }
+    function dois(n) { return String(n).padStart(2, '0'); }
+    function diaUTC(iso) { return new Date(iso + 'T12:00:00Z'); }
+    function isoUTC(dia) { return dia.toISOString().slice(0, 10); }
+    function atualizar() {
+      Object.keys(campos).forEach(function (nome) {
+        var campo = campos[nome], botao = botoes[nome];
+        if (!botao) return;
+        botao.querySelector('span').textContent = campo.value
+          ? nome === 'data' ? formatarData(campo.value) : campo.value
+          : nome === 'data' ? 'Escolher data' : 'Escolher horário';
+        botao.classList.toggle('is-empty', !campo.value);
+        botao.setAttribute('aria-invalid', campo.getAttribute('aria-invalid') || 'false');
+      });
+    }
+    function encerrar() {
+      if (picker.hidden) return;
+      picker.hidden = true;
+      document.body.classList.remove('picker-open');
+      if (painel && 'inert' in painel) painel.inert = false;
+      if (painel) {
+        if (painelOculto === null) painel.removeAttribute('aria-hidden');
+        else painel.setAttribute('aria-hidden', painelOculto);
+      }
+      botoes[ativo].setAttribute('aria-expanded', 'false');
+      botoes[ativo].focus({ preventScroll: true });
+      ativo = '';
+    }
+    function guardar(nome, valor) {
+      campos[nome].value = valor;
+      campos[nome].dispatchEvent(new Event('input', { bubbles: true }));
+      campos[nome].dispatchEvent(new Event('change', { bubbles: true }));
+      atualizar();
+      encerrar();
+    }
+    function montarMes(focar) {
+      var limite = obterLimite();
+      var primeiro = diaUTC(mesVisivel + '-01');
+      var fim = new Date(Date.UTC(primeiro.getUTCFullYear(), primeiro.getUTCMonth() + 1, 0, 12));
+      picker.querySelector('#agendamento-mes').textContent = formatoMes.format(primeiro);
+      picker.querySelector('[data-mes="-1"]').disabled = mesVisivel <= limite.data.slice(0, 7);
+      dica.textContent = 'Escolha a partir de ' + formatarData(limite.data) + '.';
+      dias.innerHTML = '';
+      for (var vazio = 0; vazio < primeiro.getUTCDay(); vazio++) {
+        var espaco = document.createElement('span');
+        espaco.setAttribute('aria-hidden', 'true');
+        dias.appendChild(espaco);
+      }
+      var foco = diaFoco.slice(0, 7) === mesVisivel && diaFoco >= limite.data ? diaFoco
+        : mesVisivel === limite.data.slice(0, 7) ? limite.data : mesVisivel + '-01';
+      for (var n = 1; n <= fim.getUTCDate(); n++) {
+        var iso = mesVisivel + '-' + dois(n);
+        var dia = document.createElement('button');
+        dia.type = 'button';
+        dia.className = 'calendar-day';
+        dia.textContent = n;
+        dia.dataset.dia = iso;
+        dia.disabled = iso < limite.data;
+        dia.tabIndex = iso === foco ? 0 : -1;
+        dia.setAttribute('aria-label', formatoDia.format(diaUTC(iso)));
+        dia.setAttribute('aria-pressed', iso === dataEl.value ? 'true' : 'false');
+        dias.appendChild(dia);
+      }
+      if (focar) dias.querySelector('[tabindex="0"]').focus();
+    }
+    function horarioDigitado() {
+      if (!/^\d{1,2}$/.test(horas.value) || !/^\d{1,2}$/.test(minutos.value)) return '';
+      if (+horas.value > 23 || +minutos.value > 59) return '';
+      return dois(+horas.value) + ':' + dois(+minutos.value);
+    }
+    function conferirHorario() {
+      var limite = obterLimite();
+      var valor = horarioDigitado();
+      var antes = !!dataEl.value && (dataEl.value < limite.data ||
+        dataEl.value === limite.data && !!valor && valor < limite.hora);
+      var fora = +horas.value > 23 || +minutos.value > 59;
+      dica.textContent = dataEl.value === limite.data
+        ? 'Neste dia, escolha a partir de ' + limite.hora + '.'
+        : 'Horário de Gravatal · formato 24 horas.';
+      erroHora.textContent = fora ? 'Use horas de 00 a 23 e minutos de 00 a 59.'
+        : antes ? 'Escolha a partir de ' + formatarData(limite.data) + ' às ' + limite.hora + '.' : '';
+      horas.setAttribute('aria-invalid', fora || antes ? 'true' : 'false');
+      minutos.setAttribute('aria-invalid', fora || antes ? 'true' : 'false');
+      confirmar.disabled = !valor || antes;
+      return !!valor && !antes;
+    }
+    function abrir(nome) {
+      ativo = nome;
+      calendario.hidden = nome !== 'data';
+      relogio.hidden = nome !== 'hora';
+      titulo.textContent = nome === 'data' ? 'Escolha a data' : 'Escolha o horário';
+      if (nome === 'data') {
+        var limite = obterLimite();
+        diaFoco = dataEl.value >= limite.data ? dataEl.value : limite.data;
+        mesVisivel = diaFoco.slice(0, 7);
+        montarMes(false);
+      } else {
+        var partes = horaEl.value.split(':');
+        horas.value = partes[0] || '';
+        minutos.value = partes[1] || '';
+        conferirHorario();
+      }
+      picker.hidden = false;
+      ajustarVisor();
+      picker.querySelector('.addons-box').scrollTop = 0;
+      botoes[nome].setAttribute('aria-expanded', 'true');
+      document.body.classList.add('picker-open');
+      if (painel && 'inert' in painel) painel.inert = true;
+      // Focar o calendário; no relógio, não abrir o teclado antes do toque do cliente.
+      (nome === 'data' ? dias.querySelector('[tabindex="0"]') : fechar).focus({ preventScroll: true });
+      if (painel) {
+        painelOculto = painel.getAttribute('aria-hidden');
+        painel.setAttribute('aria-hidden', 'true');
+      }
+    }
+    Object.keys(campos).forEach(function (nome) {
+      var campo = campos[nome];
+      var botao = document.createElement('button');
+      botao.type = 'button';
+      botao.className = 'schedule-trigger';
+      botao.dataset.agendaAbrir = nome;
+      botao.innerHTML = (nome === 'data' ? calendarioIcone : relogioIcone) +
+        '<span id="agendamento-' + nome + '-valor"></span>' + ICONE_SETA;
+      botao.setAttribute('aria-labelledby', 'agendamento-' + nome + '-rotulo agendamento-' + nome + '-valor');
+      botao.setAttribute('aria-describedby', campo.getAttribute('aria-describedby'));
+      botao.setAttribute('aria-haspopup', 'dialog');
+      botao.setAttribute('aria-controls', picker.id);
+      botao.setAttribute('aria-expanded', 'false');
+      campo.type = 'hidden';
+      campo.insertAdjacentElement('afterend', botao);
+      botoes[nome] = botao;
+      botao.addEventListener('click', function () { abrir(nome); });
+    });
+    picker.querySelectorAll('[data-mes]').forEach(function (botao) {
+      botao.addEventListener('click', function () {
+        var dia = diaUTC(mesVisivel + '-01');
+        dia.setUTCMonth(dia.getUTCMonth() + +botao.dataset.mes);
+        mesVisivel = isoUTC(dia).slice(0, 7);
+        montarMes(false);
+        if (botao.disabled) picker.querySelector('[data-mes="1"]').focus();
+      });
+    });
+    dias.addEventListener('click', function (event) {
+      var dia = event.target.closest('[data-dia]');
+      if (!dia || dia.disabled) return;
+      if (dia.dataset.dia < obterLimite().data) { montarMes(true); return; }
+      guardar('data', dia.dataset.dia);
+    });
+    dias.addEventListener('keydown', function (event) {
+      var alvo = event.target.closest('[data-dia]');
+      if (!alvo) return;
+      var dia = diaUTC(alvo.dataset.dia);
+      var passos = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 };
+      if (passos[event.key]) dia.setUTCDate(dia.getUTCDate() + passos[event.key]);
+      else if (event.key === 'Home') dia.setUTCDate(dia.getUTCDate() - dia.getUTCDay());
+      else if (event.key === 'End') dia.setUTCDate(dia.getUTCDate() + 6 - dia.getUTCDay());
+      else if (event.key === 'PageUp' || event.key === 'PageDown') {
+        var numero = dia.getUTCDate();
+        dia.setUTCDate(1);
+        dia.setUTCMonth(dia.getUTCMonth() + (event.key === 'PageUp' ? -1 : 1));
+        var ultimo = new Date(Date.UTC(dia.getUTCFullYear(), dia.getUTCMonth() + 1, 0)).getUTCDate();
+        dia.setUTCDate(Math.min(numero, ultimo));
+      } else return;
+      event.preventDefault();
+      diaFoco = isoUTC(dia) < obterLimite().data ? obterLimite().data : isoUTC(dia);
+      mesVisivel = diaFoco.slice(0, 7);
+      montarMes(true);
+    });
+    [horas, minutos].forEach(function (campo) {
+      campo.addEventListener('focus', function () { campo.select(); });
+      campo.addEventListener('input', function () {
+        campo.value = campo.value.replace(/\D/g, '').slice(0, 2);
+        conferirHorario();
+      });
+      campo.addEventListener('blur', function () {
+        if (campo.value) campo.value = dois(+campo.value);
+      });
+    });
+    picker.querySelectorAll('[data-ajuste]').forEach(function (botao) {
+      botao.addEventListener('click', function () {
+        var campo = botao.dataset.parte === 'horas' ? horas : minutos;
+        var max = campo === horas ? 23 : 59;
+        campo.value = dois(campo.value === '' ? 0 : Math.max(0, Math.min(max, +campo.value + +botao.dataset.ajuste)));
+        conferirHorario();
+      });
+    });
+    relogio.addEventListener('submit', function (event) {
+      event.preventDefault();
+      if (conferirHorario()) guardar('hora', horarioDigitado());
+    });
+    fechar.addEventListener('click', encerrar);
+    picker.addEventListener('click', function (event) { if (event.target === picker) encerrar(); });
+    document.addEventListener('keydown', function (event) {
+      if (picker.hidden || event.defaultPrevented) return;
+      if (event.key === 'Escape') { event.preventDefault(); encerrar(); return; }
+      if (event.key !== 'Tab') return;
+      var focaveis = Array.prototype.filter.call(picker.querySelectorAll('button, input'), function (el) {
+        return !el.disabled && el.tabIndex !== -1 && el.offsetParent !== null;
+      });
+      var primeiro = focaveis[0], ultimo = focaveis[focaveis.length - 1];
+      if (event.shiftKey && document.activeElement === primeiro) { event.preventDefault(); ultimo.focus(); }
+      else if (!event.shiftKey && document.activeElement === ultimo) { event.preventDefault(); primeiro.focus(); }
+    });
+    document.addEventListener('focusin', function (event) {
+      if (!picker.hidden && !picker.contains(event.target)) fechar.focus();
+    });
+    atualizar();
+    return {
+      atualizar: atualizar,
+      focar: function (campo) { (botoes[campo.name] || campo).focus(); }
+    };
+  }
   function iniciarCheckout() {
     var lista = document.querySelector('[data-lista]');
     var caixa = document.querySelector('[data-carrinho]');
@@ -1208,6 +1486,9 @@
       formatoRetirada.formatToParts(minima).forEach(function (parte) { partes[parte.type] = parte.value; });
       return { data: partes.year + '-' + partes.month + '-' + partes.day, hora: partes.hour + ':' + partes.minute };
     }
+    var agendamento = iniciarAgendamento(dataEl, horaEl, function () {
+      return limiteRetirada(prazoHoras(lerPedido()));
+    });
 
     function mostrarErro(campo, msg) {
       var el = form.querySelector('[data-erro="' + campo + '"]');
@@ -1218,6 +1499,7 @@
       form.querySelectorAll('[name=' + campo + ']').forEach(function (input) {
         input.setAttribute('aria-invalid', msg ? 'true' : 'false');
       });
+      agendamento.atualizar();
     }
     function recebimentoEscolhido() {
       var escolhido = form.querySelector('[name=recebimento]:checked');
@@ -1258,7 +1540,7 @@
       form.querySelector('[data-rotulo-hora]').textContent = entrega ? 'Horário de entrega' : recebimento ? 'Horário de retirada' : 'Horário desejado';
       form.querySelector('[data-recebimento-dica]').textContent = entrega
         ? 'Combinamos o endereço e a taxa pelo WhatsApp antes de confirmar o pedido.'
-        : recebimento ? 'Retirada no bairro Bela Vista 1, em Gravatal, em data e horário combinados.' : 'Escolha uma opção para continuar.';
+        : recebimento ? 'Retirada no bairro Bela Vista, em Gravatal, em data e horário combinados.' : 'Escolha uma opção para continuar.';
       if (recebimento) mostrarErro('recebimento', '');
       atualizarValores();
     }
@@ -1344,6 +1626,7 @@
       }
       if (dataEl.value) dataEl.setAttribute('aria-invalid', diaAntes ? 'true' : 'false');
       if (horaEl.value) horaEl.setAttribute('aria-invalid', horaAntes ? 'true' : 'false');
+      agendamento.atualizar();
       return !invalida;
     }
     [dataEl, horaEl].forEach(function (campo) {
@@ -1353,14 +1636,6 @@
       });
       campo.addEventListener('change', conferirData);
       campo.addEventListener('focus', conferirData);
-      campo.addEventListener(window.PointerEvent ? 'pointerup' : 'click', function (ev) {
-        conferirData();
-        if (typeof campo.showPicker !== 'function') return;
-        try {
-          campo.showPicker();
-          ev.preventDefault();
-        } catch (_) { /* Mantém o controle nativo e a digitação quando indisponível. */ }
-      }, true); // Captura também o clique nos segmentos internos de data/hora.
     });
     // Pix (04/10/2026): ao marcar Pix aparece o quadro com a chave e o botão Copiar; com cartão, só a nota do link
     var pixCheckout = form.querySelector('[data-pix]');
@@ -1413,7 +1688,7 @@
         primeiroErro = dataEl.getAttribute('aria-invalid') === 'true' ? dataEl : horaEl;
       }
       if (primeiroErro) {
-        primeiroErro.focus();
+        agendamento.focar(primeiroErro);
         return;
       }
       var dados = {
@@ -1460,7 +1735,7 @@
       ev.preventDefault();
       if (obrigado) obrigado.hidden = true;
       render();
-      (dataEl.getAttribute('aria-invalid') === 'true' ? dataEl : horaEl).focus();
+      agendamento.focar(dataEl.getAttribute('aria-invalid') === 'true' ? dataEl : horaEl);
     });
     if (obrigado) {
       var editar = obrigado.querySelector('[data-editar]');
@@ -1477,6 +1752,11 @@
       if (novo) novo.addEventListener('click', function () {
         gravarPedido([]);
         form.reset();
+        // Campos ocultos guardam o valor no atributo; limpar também ao iniciar outro pedido.
+        dataEl.value = '';
+        horaEl.value = '';
+        mostrarErro('data', '');
+        mostrarErro('hora', '');
         atualizarRecebimento();
         obrigado.hidden = true;
         render();

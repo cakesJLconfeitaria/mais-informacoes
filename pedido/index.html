@@ -30,8 +30,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script src="../assets/site.js?v=8"></script>
-    <link rel="stylesheet" href="../assets/site.css?v=38">
-    <script src="../assets/pedido.js?v=34" defer></script>
+    <link rel="stylesheet" href="../assets/site.css?v=39">
+    <script src="../assets/pedido.js?v=36" defer></script>
   </head>
   <body class="product-page pedido-page">
     <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
@@ -261,7 +261,7 @@
           <div class="field">
             <span id="recebimento-rotulo">Como você prefere receber? <em class="req">obrigatório</em></span>
             <div class="choice-grid two" role="radiogroup" aria-labelledby="recebimento-rotulo" aria-required="true">
-              <label><input type="radio" name="recebimento" value="retirada" required aria-describedby="erro-recebimento recebimento-dica"><span>Retirada<small>Bela Vista 1, em Gravatal</small></span>
+              <label><input type="radio" name="recebimento" value="retirada" required aria-describedby="erro-recebimento recebimento-dica"><span>Retirada<small>Bela Vista, em Gravatal</small></span>
               </label>
               <label><input type="radio" name="recebimento" value="entrega" required aria-describedby="erro-recebimento recebimento-dica"><span>Entrega<small>Taxa a combinar pelo WhatsApp</small></span>
               </label>
@@ -270,10 +270,16 @@
             <p class="hint pay-note" id="recebimento-dica" data-recebimento-dica>Escolha uma opção para continuar.</p>
           </div>
           <div class="two-cols">
-            <label class="field"><span><span data-rotulo-data>Data desejada</span> <em class="req">obrigatório</em></span><input type="date" name="data" required aria-describedby="erro-data aviso-retirada"><small class="field-error" id="erro-data" data-erro="data" hidden></small>
-            </label>
-            <label class="field"><span><span data-rotulo-hora>Horário desejado</span> <em class="req">obrigatório</em></span><input type="time" name="hora" required aria-describedby="erro-hora aviso-retirada"><small class="field-error" id="erro-hora" data-erro="hora" hidden></small>
-            </label>
+            <div class="field">
+              <span><span id="agendamento-data-rotulo" data-rotulo-data>Data desejada</span> <em class="req">obrigatório</em></span>
+              <input type="date" name="data" required aria-labelledby="agendamento-data-rotulo" aria-describedby="erro-data aviso-retirada">
+              <small class="field-error" id="erro-data" data-erro="data" hidden></small>
+            </div>
+            <div class="field">
+              <span><span id="agendamento-hora-rotulo" data-rotulo-hora>Horário desejado</span> <em class="req">obrigatório</em></span>
+              <input type="time" name="hora" required aria-labelledby="agendamento-hora-rotulo" aria-describedby="erro-hora aviso-retirada">
+              <small class="field-error" id="erro-hora" data-erro="hora" hidden></small>
+            </div>
           </div>
           <div class="aviso aviso-retirada" id="aviso-retirada" data-aviso-data role="alert" hidden>
             <strong data-aviso-titulo></strong>
@@ -368,7 +374,7 @@
             </details>
             <details name="politica-encomendas">
               <summary>Retirada e entrega</summary>
-              <p>Você pode retirar sua encomenda no bairro Bela Vista 1, em Gravatal, em data e horário combinados. Se preferir, podemos combinar a entrega e o valor da taxa pelo WhatsApp.</p>
+              <p>Você pode retirar sua encomenda no bairro Bela Vista, em Gravatal, em data e horário combinados. Se preferir, podemos combinar a entrega e o valor da taxa pelo WhatsApp.</p>
               <p>Nos pedidos com entrega, combinamos a taxa antes da confirmação. O sinal de 50% é calculado sobre o valor dos produtos e a taxa de entrega.</p>
             </details>
             <details name="politica-encomendas">
