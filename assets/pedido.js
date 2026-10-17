@@ -13,9 +13,9 @@
   var PIX = { chave: 'cakesjlconfeitaria@gmail.com' }; // titular e banco ficam no HTML do quadro
 
   var CATALOGO = {
-    'brownie-cobertura': { nome: 'Brownie com cobertura', preco: 14, grupo: 'novos', opcao: 'Cobertura' },
+    'brownie-cobertura': { nome: 'Brownie com cobertura', preco: 12, grupo: 'novos', opcao: 'Cobertura' },
     'marmitinha': { nome: 'Marmitinha brownie recheada', precos: { com: 24.9, sem: 21.9 }, grupo: 'novos', opcao: 'Recheio' },
-    'donuts': { nome: 'Donuts no copinho (6 unidades)', preco: 23, grupo: 'novos', opcao: 'Recheio da tampa' },
+    'donuts': { nome: 'Donuts no copinho (6 unidades)', preco: 20, grupo: 'novos', opcao: 'Recheio da tampa' },
     'matilda': { nome: 'Bolo Matilda', grupo: 'tortas' },
     'bento': { nome: 'Bentô Cake', grupo: 'tortas' },
     'torta': { nome: 'Torta', grupo: 'tortas' }
@@ -68,6 +68,10 @@
             if (typeof item.preco === 'number') item.preco -= extra.preco || 0;
             extra.preco = 0;
           });
+        }
+        // Preços atuais também nos pedidos salvos antes da atualização.
+        if (item && (item.tipo === 'brownie-cobertura' || item.tipo === 'donuts')) {
+          item.preco = CATALOGO[item.tipo].preco;
         }
         if (!item || ['brownie-cobertura', 'marmitinha', 'donuts'].indexOf(item.tipo) === -1 || !Array.isArray(item.detalhes)) return;
         item.detalhes = item.detalhes.map(function (detalhe) {
