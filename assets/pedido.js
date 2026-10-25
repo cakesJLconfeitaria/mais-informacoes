@@ -655,6 +655,46 @@
     campo.classList.add('enhanced');
   }
 
+  // A validação destaca todos os campos; só a tentativa de avançar move a tela.
+  function sinalizarCampo(campo, erro, mensagem) {
+    campo.classList.toggle('field-invalid', !!mensagem);
+    if (!mensagem) campo.classList.remove('field-error-pulse');
+    if (erro) {
+      erro.textContent = mensagem || '';
+      erro.hidden = !mensagem;
+    }
+    campo.querySelectorAll('input, select, textarea, .flavor-trigger, .schedule-trigger').forEach(function (controle) {
+      controle.setAttribute('aria-invalid', mensagem ? 'true' : 'false');
+    });
+  }
+  function levarAoPrimeiroErro(form) {
+    var campos = form.querySelectorAll('.field-invalid');
+    if (!campos.length) return;
+    var campo = campos[0];
+    // Focar o grupo mantém a navegação acessível sem abrir teclado ou seletor.
+    campo.setAttribute('tabindex', '-1');
+    campo.focus({ preventScroll: true });
+    var reduzir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    campo.scrollIntoView({ behavior: reduzir ? 'instant' : 'smooth', block: 'center' });
+    campo.classList.remove('field-error-pulse');
+    void campo.offsetWidth;
+    campo.classList.add('field-error-pulse');
+    var aviso = form.querySelector('[data-validacao-aviso]');
+    if (!aviso) {
+      aviso = document.createElement('span');
+      aviso.className = 'sr-only';
+      aviso.setAttribute('data-validacao-aviso', '');
+      aviso.setAttribute('role', 'status');
+      form.appendChild(aviso);
+    }
+    aviso.textContent = '';
+    window.requestAnimationFrame(function () {
+      var erro = campo.querySelector('.field-error');
+      aviso.textContent = (campos.length === 1 ? 'Há uma informação para corrigir. ' : 'Há ' + campos.length + ' informações para corrigir. ') +
+        (erro ? erro.textContent : 'Confira o campo destacado.');
+    });
+  }
+
   function ligarValidacaoSabor(form) {
     var radios = form.querySelectorAll('[name=sabor]');
     if (!radios.length) return;
@@ -671,28 +711,21 @@
 
     function atualizar() {
       var escolhido = form.querySelector('[name=sabor]:checked');
-      var sub = escolhido && campoDoSabor(form, escolhido.value);
       if (dica) dica.hidden = !!escolhido;
-      if (escolhido && (!sub || sub.querySelector('input:checked'))) {
-        erro.hidden = true;
-        (botao || radios[0]).removeAttribute('aria-invalid');
-      }
+      if (form._validacaoTentada) form._saborOk();
     }
     form.addEventListener('change', atualizar);
     atualizar();
     form._saborOk = function () {
       var escolhido = form.querySelector('[name=sabor]:checked');
       var sub = escolhido && campoDoSabor(form, escolhido.value);
-      if (escolhido && (!sub || sub.querySelector('input:checked'))) return true;
-      erro.textContent = escolhido
-        ? 'Escolha uma opção para completar este sabor.'
-        : 'Escolha uma opção antes de adicionar ao pedido.';
-      erro.hidden = false;
-      (botao || radios[0]).setAttribute('aria-invalid', 'true');
-      campo.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      if (botao) abrirSabores(form, botao, !!escolhido);
-      else radios[0].focus({ preventScroll: true });
-      return false;
+      var valido = !!escolhido && (!sub || !!sub.querySelector('input:checked'));
+      var rotulo = (campo.dataset.saborRotulo || 'sabor').toLowerCase();
+      var mensagem = escolhido && sub
+        ? 'Escolha ' + (sub.dataset.campo === 'massa' ? 'a massa' : 'o creme') + ' para completar este sabor.'
+        : 'Escolha ' + (rotulo === 'cobertura' ? 'a ' : 'o ') + rotulo + ' antes de adicionar ao pedido.';
+      sinalizarCampo(campo, erro, valido ? '' : mensagem);
+      return valido;
     };
   }
 
@@ -842,8 +875,6 @@
         if (rotulo[1]) { var sm = document.createElement('small'); sm.textContent = rotulo[1]; span.appendChild(sm); }
         input.addEventListener('change', function () {
           campo._escolhida = v;
-          if (erro) erro.hidden = true;
-          if (botao) botao.removeAttribute('aria-invalid');
           if (form._resumoCobertura) form._resumoCobertura();
         });
         grade.appendChild(l);
@@ -859,16 +890,9 @@
       }
     });
     form._coberturaOk = function () {
-      if (form.querySelector('[name=cobertura]:checked')) return true;
-      if (erro) erro.hidden = false;
-      if (botao) botao.setAttribute('aria-invalid', 'true');
-      campo.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      if (botao) abrirCoberturas(form, botao);
-      else {
-        var primeiro = grade.querySelector('input');
-        if (primeiro) primeiro.focus({ preventScroll: true });
-      }
-      return false;
+      var valido = !!form.querySelector('[name=cobertura]:checked');
+      sinalizarCampo(campo, erro, valido ? '' : 'Escolha a cobertura antes de adicionar ao pedido.');
+      return valido;
     };
     desenhar();
     if (!abrirCoberturas) return;
@@ -941,21 +965,15 @@
     grade.setAttribute('aria-required', 'true');
     radios.forEach(function (r) {
       r.setAttribute('aria-describedby', erro.id);
-      r.addEventListener('change', function () {
-        erro.hidden = true;
-        radios.forEach(function (opcao) { opcao.removeAttribute('aria-invalid'); });
-      });
     });
     return function () {
-      if (form.querySelector('[name=' + nome + ']:checked')) return true;
-      erro.hidden = false;
-      radios.forEach(function (r) { r.setAttribute('aria-invalid', 'true'); });
-      campo.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      radios[0].focus({ preventScroll: true });
-      return false;
+      var valido = !!form.querySelector('[name=' + nome + ']:checked');
+      sinalizarCampo(campo, erro, valido ? '' : mensagem);
+      return valido;
     };
   }
   function ligarFormulario(form) {
+    form.noValidate = true;
     var qtd = form.querySelector('[name=qtd]');
     var tipo = form.dataset.produto;
     var tamanhoOk = ligarEscolhaObrigatoria(form, 'tamanho', 'Escolha o tamanho antes de adicionar ao pedido.');
@@ -969,13 +987,13 @@
     form.querySelectorAll('[data-menos]').forEach(function (b) {
       b.addEventListener('click', function () {
         qtd.value = Math.max(1, (parseInt(qtd.value, 10) || 1) - 1);
-        aoMudarQtd();
+        qtd.dispatchEvent(new Event('input', { bubbles: true }));
       });
     });
     form.querySelectorAll('[data-mais]').forEach(function (b) {
       b.addEventListener('click', function () {
         qtd.value = Math.min(99, (parseInt(qtd.value, 10) || 1) + 1);
-        aoMudarQtd();
+        qtd.dispatchEvent(new Event('input', { bubbles: true }));
       });
     });
     qtd.addEventListener('input', aoMudarQtd);
@@ -1061,17 +1079,36 @@
       });
       form._atualizarPrevia();
     }
+    var campoQtd = qtd.closest('.qty-row');
+    var erroQtd = document.createElement('small');
+    erroQtd.className = 'field-error';
+    erroQtd.id = 'erro-qtd-' + Array.prototype.indexOf.call(document.querySelectorAll('form[data-produto]'), form);
+    erroQtd.hidden = true;
+    campoQtd.appendChild(erroQtd);
+    qtd.setAttribute('aria-describedby', erroQtd.id);
+    function validarProduto() {
+      [opcaoOk, form._saborOk, morangoOk, tamanhoOk, form._coberturaOk].forEach(function (validar) {
+        if (validar) validar();
+      });
+      sinalizarCampo(campoQtd, erroQtd, qtd.validity.valid ? '' : 'Informe uma quantidade inteira de 1 a 99.');
+      return !form.querySelector('.field-invalid');
+    }
+    ['input', 'change'].forEach(function (tipoEvento) {
+      form.addEventListener(tipoEvento, function () {
+        if (form._validacaoTentada) validarProduto();
+      });
+    });
     form.addEventListener('submit', function (ev) {
       ev.preventDefault();
-      if (opcaoOk && !opcaoOk()) return;
-      if (form._saborOk && !form._saborOk()) return;
-      if (morangoOk && !morangoOk()) return;
-      if (tamanhoOk && !tamanhoOk()) return;
-      if (form._coberturaOk && !form._coberturaOk()) return; // cobertura obrigatória nas tortas e no Bentô (06/10/2026)
+      form._validacaoTentada = true;
+      if (!validarProduto()) { levarAoPrimeiroErro(form); return; }
       var item = montarItem(form);
       var itens = lerPedido();
       itens.push(item);
       gravarPedido(itens);
+      form._validacaoTentada = false;
+      var avisoValidacao = form.querySelector('[data-validacao-aviso]');
+      if (avisoValidacao) avisoValidacao.textContent = '';
       toast('Adicionado ao seu pedido: ' + item.qtd + '× ' + item.nome);
       var fab = document.querySelector('.cart-fab');
       if (fab) {
@@ -1460,10 +1497,7 @@
       if (!picker.hidden && !picker.contains(event.target)) fechar.focus();
     });
     atualizar();
-    return {
-      atualizar: atualizar,
-      focar: function (campo) { (botoes[campo.name] || campo).focus(); }
-    };
+    return { atualizar: atualizar };
   }
   function iniciarCheckout() {
     var lista = document.querySelector('[data-lista]');
@@ -1496,13 +1530,7 @@
 
     function mostrarErro(campo, msg) {
       var el = form.querySelector('[data-erro="' + campo + '"]');
-      if (el) {
-        el.textContent = msg || '';
-        el.hidden = !msg;
-      }
-      form.querySelectorAll('[name=' + campo + ']').forEach(function (input) {
-        input.setAttribute('aria-invalid', msg ? 'true' : 'false');
-      });
+      if (el) sinalizarCampo(el.closest('.field'), el, msg);
       agendamento.atualizar();
     }
     function recebimentoEscolhido() {
@@ -1621,21 +1649,25 @@
       var diaAntes = !!dataEl.value && dataEl.value < limite.data;
       var horaAntes = dataEl.value === limite.data && !!horaEl.value && horaEl.value < limite.hora;
       var invalida = diaAntes || horaAntes;
-      avisoData.hidden = !invalida;
-      if (invalida) {
+      avisoData.hidden = !form._validacaoTentada || !invalida;
+      if (form._validacaoTentada && invalida) {
         avisoData.querySelector('[data-aviso-titulo]').textContent = 'Antecedência mínima de ' + horas + ' horas';
         avisoData.querySelector('[data-aviso-texto]').textContent =
           'Para este pedido, escolha uma data e um horário a partir de ' +
           formatarData(limite.data) + ' às ' + limite.hora + ' (horário de Gravatal).';
       }
-      if (dataEl.value) dataEl.setAttribute('aria-invalid', diaAntes ? 'true' : 'false');
-      if (horaEl.value) horaEl.setAttribute('aria-invalid', horaAntes ? 'true' : 'false');
+      if (form._validacaoTentada) {
+        var acao = recebimentoEscolhido() === 'entrega' ? 'receber' : 'retirar';
+        mostrarErro('data', !dataEl.value ? 'Escolha o dia em que gostaria de ' + acao + '.'
+          : diaAntes ? 'Escolha uma data a partir de ' + formatarData(limite.data) + '.' : '');
+        mostrarErro('hora', !horaEl.value ? 'Informe o horário em que gostaria de ' + acao + '.'
+          : horaAntes ? 'Neste dia, escolha um horário a partir de ' + limite.hora + '.' : '');
+      }
       agendamento.atualizar();
       return !invalida;
     }
     [dataEl, horaEl].forEach(function (campo) {
       campo.addEventListener('input', function () {
-        if (campo.value) mostrarErro(campo.name, '');
         conferirData();
       });
       campo.addEventListener('change', conferirData);
@@ -1666,35 +1698,30 @@
       r.addEventListener('change', atualizarPagamento);
     });
     atualizarPagamento();
-    nomeEl.addEventListener('input', function () { if (nomeEl.value.trim().length >= 2) mostrarErro('nome', ''); });
+    function validarCheckout() {
+      mostrarErro('nome', nomeEl.value.trim().length >= 2 ? '' : 'Informe seu nome para continuar.');
+      var recebimento = recebimentoEscolhido();
+      mostrarErro('recebimento', recebimento ? '' : 'Escolha retirada ou entrega para continuar.');
+      var pag = form.querySelector('[name=pagamento]:checked');
+      mostrarErro('pagamento', pag ? '' : 'Escolha como pagar o sinal para continuar.');
+      conferirData();
+      return !form.querySelector('.field-invalid');
+    }
+    ['input', 'change'].forEach(function (tipoEvento) {
+      form.addEventListener(tipoEvento, function () {
+        if (form._validacaoTentada) validarCheckout();
+      });
+    });
 
     form.addEventListener('submit', function (ev) {
       ev.preventDefault();
       var itens = lerPedido();
       if (!itens.length) return;
+      form._validacaoTentada = true;
+      if (!validarCheckout()) { levarAoPrimeiroErro(form); return; }
       var nome = nomeEl.value.trim();
-      // Nome, recebimento, agendamento e pagamento são obrigatórios; focar o primeiro erro.
-      var primeiroErro = null;
-      function exigir(campo, el, valido, msg) {
-        mostrarErro(campo, valido ? '' : msg);
-        if (!valido && !primeiroErro) primeiroErro = el;
-      }
-      exigir('nome', nomeEl, nome.length >= 2, 'Informe seu nome para continuar.');
       var recebimento = recebimentoEscolhido();
-      exigir('recebimento', form.querySelector('[name=recebimento]'), !!recebimento, 'Escolha retirada ou entrega para continuar.');
-      exigir('data', dataEl, !!dataEl.value, recebimento === 'entrega'
-        ? 'Escolha o dia em que gostaria de receber.' : 'Escolha o dia em que gostaria de retirar.');
-      exigir('hora', horaEl, !!horaEl.value, recebimento === 'entrega'
-        ? 'Informe o horário em que gostaria de receber.' : 'Informe o horário em que gostaria de retirar.');
       var pag = form.querySelector('[name=pagamento]:checked');
-      exigir('pagamento', form.querySelector('[name=pagamento]'), !!pag, 'Escolha como pagar o sinal para continuar.');
-      if (!conferirData() && !primeiroErro) {
-        primeiroErro = dataEl.getAttribute('aria-invalid') === 'true' ? dataEl : horaEl;
-      }
-      if (primeiroErro) {
-        agendamento.focar(primeiroErro);
-        return;
-      }
       var dados = {
         nome: nome,
         recebimento: recebimento,
@@ -1735,11 +1762,12 @@
     });
     // Reabrir a mensagem também exige prazo válido se o cliente ficou na tela final.
     if (reenviar) reenviar.addEventListener('click', function (ev) {
+      form._validacaoTentada = true;
       if (conferirData()) return;
       ev.preventDefault();
       if (obrigado) obrigado.hidden = true;
       render();
-      agendamento.focar(dataEl.getAttribute('aria-invalid') === 'true' ? dataEl : horaEl);
+      levarAoPrimeiroErro(form);
     });
     if (obrigado) {
       var editar = obrigado.querySelector('[data-editar]');
@@ -1756,6 +1784,10 @@
       if (novo) novo.addEventListener('click', function () {
         gravarPedido([]);
         form.reset();
+        form._validacaoTentada = false;
+        form.querySelectorAll('[data-erro]').forEach(function (erro) { mostrarErro(erro.dataset.erro, ''); });
+        var avisoValidacao = form.querySelector('[data-validacao-aviso]');
+        if (avisoValidacao) avisoValidacao.textContent = '';
         // Campos ocultos guardam o valor no atributo; limpar também ao iniciar outro pedido.
         dataEl.value = '';
         horaEl.value = '';

@@ -3947,3 +3947,65 @@ h1,h2,h3,.torta-builder-start h2,.addons-head h2 {
     background: var(--soft);
   }
 }
+
+/* Pendências após tentar avançar; o contorno não altera o espaço dos campos. */
+.order-form,.checkout {
+  --field-error: #a72c36;
+  --field-error-bg: #fff1f2;
+  --field-error-ring: rgba(167,44,54,.18);
+}
+
+[data-theme=dark] .order-form,[data-theme=dark] .checkout {
+  --field-error: #ffb4ab;
+  --field-error-bg: #36252a;
+  --field-error-ring: rgba(255,180,171,.2);
+}
+
+.field-invalid {
+  border-radius: 6px;
+  outline: 1px solid var(--field-error);
+  outline-offset: 5px;
+  background: var(--field-error-bg);
+  box-shadow: 0 0 0 5px var(--field-error-bg);
+  scroll-margin-block: 24px;
+}
+
+.order-form .field-error,.checkout .field-error {
+  position: relative;
+  padding-left: 19px;
+  color: var(--field-error);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.order-form .field-error::before,.checkout .field-error::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 14px;
+  height: 14px;
+  background: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6.5' fill='none' stroke='black'/%3E%3Cpath d='M8 4.5v4' stroke='black' stroke-width='1.5'/%3E%3Ccircle cx='8' cy='11' r='.8'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.qty-row .field-error {
+  flex-basis: 100%;
+}
+
+.checkout .two-cols:has(.field-invalid) {
+  gap: 16px;
+}
+
+.field-error-pulse {
+  animation: field-error-pulse .7s ease-in-out .2s 2;
+}
+
+@keyframes field-error-pulse {
+  0%,100% { box-shadow: 0 0 0 5px var(--field-error-bg); }
+  50% { box-shadow: 0 0 0 5px var(--field-error-bg),0 0 0 9px var(--field-error-ring); }
+}
+
+@media(prefers-reduced-motion:reduce) {
+  .field-error-pulse { animation: none; }
+}
