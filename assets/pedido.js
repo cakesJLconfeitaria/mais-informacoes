@@ -57,6 +57,16 @@
           (item.nome === 'Bentô Cake (aprox. 300 g)' || item.nome === 'Bentô Cake (aprox. 700 g)')) {
           item.nome = 'Bentô Cake (aprox. 500 g)';
         }
+        // Os dois modelos de Bentô têm somente Chantilly, inclusive nos pedidos salvos.
+        if (item && item.tipo === 'bento' && Array.isArray(item.detalhes)) {
+          var temCobertura = false;
+          item.detalhes = item.detalhes.map(function (detalhe) {
+            if (typeof detalhe !== 'string' || detalhe.indexOf('Cobertura: ') !== 0) return detalhe;
+            temCobertura = true;
+            return 'Cobertura: Chantilly';
+          });
+          if (!temCobertura) item.detalhes.push('Cobertura: Chantilly');
+        }
         // Rendimento do tamanho P corrigido em 12/10/2026, inclusive em pedidos locais anteriores.
         if (item && item.tipo === 'torta' && item.nome === 'Torta P (aro 15, 12 fatias)') {
           item.nome = 'Torta ' + TORTA.tamanhos.P;
@@ -829,7 +839,8 @@
      (Ninho ou chocolate 50% cacau, em data-cobertura). Nenhuma cobertura
      começa marcada, inclusive quando só há Chantilly; o cliente precisa
      escolher antes de adicionar. No card "Outro sabor", Chantilly ou
-     "Recheio (a combinar)". Trocar o sabor limpa a escolha anterior. */
+     "Recheio (a combinar)". Bentô tem somente Chantilly nos dois modelos.
+     Trocar o sabor limpa a escolha anterior. */
   var ROTULO_COBERTURA = {
     'Chantilly': ['Chantilly', ''],
     'Chocolate 50% cacau': ['Chocolate', '50% cacau'],
@@ -837,6 +848,7 @@
     'Recheio (a combinar)': ['Recheio', 'combinamos qual']
   };
   function opcoesDeCobertura(form, campo) {
+    if (form.dataset.produto === 'bento') return ['Chantilly'];
     if (campo.dataset.coberturaOutro) return ['Chantilly', 'Recheio (a combinar)'];
     var r = form.querySelector('.flavor-field [name=sabor]:checked');
     var lista = r ? (r.dataset.cobertura || '') : '';
