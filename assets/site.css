@@ -3949,13 +3949,13 @@ h1,h2,h3,.torta-builder-start h2,.addons-head h2 {
 }
 
 /* Pendências após tentar avançar; o contorno não altera o espaço dos campos. */
-.order-form,.checkout {
+.order-form,.checkout,.addons-picker,[data-lista] {
   --field-error: #a72c36;
   --field-error-bg: #fff1f2;
   --field-error-ring: rgba(167,44,54,.18);
 }
 
-[data-theme=dark] .order-form,[data-theme=dark] .checkout {
+[data-theme=dark] .order-form,[data-theme=dark] .checkout,[data-theme=dark] .addons-picker,[data-theme=dark] [data-lista] {
   --field-error: #ffb4ab;
   --field-error-bg: #36252a;
   --field-error-ring: rgba(255,180,171,.2);
@@ -3970,7 +3970,7 @@ h1,h2,h3,.torta-builder-start h2,.addons-head h2 {
   scroll-margin-block: 24px;
 }
 
-.order-form .field-error,.checkout .field-error {
+.order-form .field-error,.checkout .field-error,.ribbon-field .field-error {
   position: relative;
   padding-left: 19px;
   color: var(--field-error);
@@ -3978,7 +3978,7 @@ h1,h2,h3,.torta-builder-start h2,.addons-head h2 {
   line-height: 1.5;
 }
 
-.order-form .field-error::before,.checkout .field-error::before {
+.order-form .field-error::before,.checkout .field-error::before,.ribbon-field .field-error::before {
   content: '';
   position: absolute;
   left: 0;
@@ -4008,4 +4008,100 @@ h1,h2,h3,.torta-builder-start h2,.addons-head h2 {
 
 @media(prefers-reduced-motion:reduce) {
   .field-error-pulse { animation: none; }
+}
+
+/* Cor do laço acompanha o acetato gratuito e os pedidos antigos sem essa escolha. */
+.addon-free {
+  flex-wrap: wrap;
+}
+
+.ribbon-field {
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.ribbon-field[hidden] {
+  display: none;
+}
+
+.addon-free .ribbon-field {
+  flex: 0 0 100%;
+  padding-top: 10px;
+  border-top: 1px solid var(--free-border);
+}
+
+.ribbon-field .field-label {
+  margin: 0;
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: 12px;
+}
+
+.ribbon-colors {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 8px;
+}
+
+.ribbon-field .ribbon-choice {
+  position: relative;
+  display: block;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+  cursor: pointer;
+}
+
+.ribbon-choice input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.ribbon-field .ribbon-choice > span {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 6px 4px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.ribbon-choice i {
+  flex: 0 0 12px;
+  height: 12px;
+  border: 1px solid rgba(128,128,128,.6);
+  border-radius: 50%;
+  background: var(--ribbon-color);
+}
+
+.ribbon-field .ribbon-choice input:checked + span {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+  background: var(--soft);
+  font-weight: 700;
+}
+
+.ribbon-choice input:focus-visible + span {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.cart-item-main .ribbon-field {
+  margin-top: 12px;
+  max-width: 340px;
+}
+
+@media(max-width:360px) {
+  .ribbon-colors { grid-template-columns: repeat(2,minmax(0,1fr)); }
 }

@@ -11,6 +11,14 @@
   var PRAZO_NOVOS_H = 24;   // brownies e donuts
   var PRAZO_TORTAS_H = 48;  // tortas, Matilda e Bentô
   var PIX = { chave: 'cakesjlconfeitaria@gmail.com' }; // titular e banco ficam no HTML do quadro
+  var CORES_LACO = [
+    { nome: 'Vermelho', amostra: '#c63640' },
+    { nome: 'Rosa', amostra: '#e89bb7' },
+    { nome: 'Azul', amostra: '#427fc3' },
+    { nome: 'Laranja', amostra: '#ed8b36' },
+    { nome: 'Branco', amostra: '#ffffff' },
+    { nome: 'Preto', amostra: '#262626' }
+  ];
 
   var CATALOGO = {
     'brownie-cobertura': { nome: 'Brownie com cobertura', preco: 12, grupo: 'novos', opcao: 'Cobertura' },
@@ -41,6 +49,36 @@
   /* ---------- utilidades ---------- */
   function moeda(v) {
     return 'R$ ' + v.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+  function corLacoValida(cor) {
+    return CORES_LACO.some(function (opcao) { return opcao.nome === cor; });
+  }
+  function acetatoSemCor(extras) {
+    return (extras || []).some(function (extra) {
+      return extra.nome === 'Acetato com laço' && !corLacoValida(extra.corLaco);
+    });
+  }
+  function nomeAdicional(extra) {
+    return extra.nome + (extra.nome === 'Acetato com laço'
+      ? ' — ' + (corLacoValida(extra.corLaco) ? 'Cor do laço: ' + extra.corLaco : 'Escolha a cor do laço') : '');
+  }
+  function textoAdicional(extra) {
+    return extra.nome + ' (' + (extra.preco === 0 ? 'Grátis' : moeda(extra.preco)) + ')' +
+      (extra.nome === 'Acetato com laço'
+        ? ' — ' + (corLacoValida(extra.corLaco) ? 'Cor do laço: ' + extra.corLaco : 'Escolha a cor do laço') : '');
+  }
+  function criarCampoCor(id, cor) {
+    var campo = document.createElement('div');
+    campo.className = 'ribbon-field';
+    campo.setAttribute('role', 'group');
+    campo.setAttribute('aria-labelledby', id + '-rotulo');
+    campo.innerHTML = '<span class="field-label" id="' + id + '-rotulo">Cor do laço <em class="req">obrigatório</em></span>' +
+      '<div class="ribbon-colors">' + CORES_LACO.map(function (opcao) {
+        return '<label class="ribbon-choice"><input type="radio" name="' + id + '" value="' + opcao.nome + '"' +
+          (cor === opcao.nome ? ' checked' : '') + ' aria-describedby="' + id + '-erro">' +
+          '<span><i style="--ribbon-color:' + opcao.amostra + '" aria-hidden="true"></i>' + opcao.nome + '</span></label>';
+      }).join('') + '</div><small class="field-error" id="' + id + '-erro" hidden></small>';
+    return campo;
   }
   function raiz() {
     var s = document.querySelector('script[src*="pedido.js"]');
@@ -307,7 +345,9 @@
       if (coberturaT) item.detalhes.push('Cobertura: ' + coberturaT.value);
       // adicionais com preço fechado (04/10/2026): somam no preço de cada torta
       (form._adicionais || []).forEach(function (a) {
-        item.extras.push({ nome: a.nome, preco: a.preco });
+        var extra = { nome: a.nome, preco: a.preco };
+        if (a.nome === 'Acetato com laço') extra.corLaco = a.corLaco;
+        item.extras.push(extra);
       });
       if (item.preco != null) item.preco += somaExtras(item.extras);
       var deco = form.querySelector('[name=decoracao]').value.trim();
@@ -331,6 +371,11 @@
     var concluir = picker.querySelector('[data-addons-done]');
     var nenhum = picker.querySelector('[data-addons-none]');
     var fechar = picker.querySelector('[data-addons-close]');
+    var acetato = picker.querySelector('[name=adicional][value="Acetato com laço"]');
+    var campoCor = criarCampoCor('cor-laco-adicionais', '');
+    acetato.closest('.addon').appendChild(campoCor);
+    campoCor.hidden = true;
+    var corTentada = false;
     var painel = document.querySelector('.panel');
     var formAtivo = null, origem = null;
     var dica = 'Veja as ' + caixas.length + ' opções com foto';
@@ -353,8 +398,19 @@
       return caixas.filter(function (c) {
         return c.checked;
       }).map(function (c) {
-        return { nome: c.value, preco: parseFloat(c.dataset.preco) };
+        var extra = { nome: c.value, preco: parseFloat(c.dataset.preco) };
+        if (c === acetato) {
+          var cor = campoCor.querySelector('input:checked');
+          extra.corLaco = cor ? cor.value : '';
+        }
+        return extra;
       });
+    }
+    function validarCor() {
+      var valida = !acetato.checked || !!campoCor.querySelector('input:checked');
+      sinalizarCampo(campoCor, campoCor.querySelector('.field-error'),
+        corTentada && !valida ? 'Escolha a cor do laço.' : '');
+      return valida;
     }
     function atualizarConcluir() {
       var n = caixas.filter(function (c) {
@@ -373,7 +429,7 @@
           (lista.length === 1 ? ' escolhido' : ' escolhidos') +
           (somaExtras(lista) === 0 ? ' · Grátis' : ' · + ' + moeda(somaExtras(lista)).replace(' ', '\u00a0')) + '</strong><small>' +
           escapar(lista.map(function (a) {
-            return a.nome;
+            return nomeAdicional(a);
           }).join(', ')) + '</small>';
         if (acao) acao.textContent = 'Alterar';
       } else {
@@ -382,6 +438,7 @@
       }
       if (botao) botao.classList.toggle('has-addons', lista.length > 0);
       if (form._atualizarPrevia) form._atualizarPrevia();
+      if (form._validacaoTentada && form._adicionaisOk) form._adicionaisOk();
     }
     function abrir(form, botao) {
       formAtivo = form;
@@ -392,6 +449,13 @@
       caixas.forEach(function (c) {
         c.checked = marcados.indexOf(c.value) > -1;
       });
+      var extra = (form._adicionais || []).filter(function (a) { return a.nome === acetato.value; })[0];
+      campoCor.querySelectorAll('input').forEach(function (input) {
+        input.checked = !!extra && input.value === extra.corLaco;
+      });
+      campoCor.hidden = !acetato.checked;
+      corTentada = false;
+      validarCor();
       atualizarConcluir();
       picker.hidden = false;
       caixa.scrollTop = 0;
@@ -416,9 +480,18 @@
       origem = null;
     }
     caixas.forEach(function (c) {
-      c.addEventListener('change', atualizarConcluir);
+      c.addEventListener('change', function () {
+        campoCor.hidden = !acetato.checked;
+        validarCor();
+        atualizarConcluir();
+      });
     });
-    concluir.addEventListener('click', function () { encerrar(true); });
+    campoCor.addEventListener('change', validarCor);
+    concluir.addEventListener('click', function () {
+      corTentada = true;
+      if (!validarCor()) { levarAoPrimeiroErro(picker); return; }
+      encerrar(true);
+    });
     nenhum.addEventListener('click', function () { encerrar(false); });
     fechar.addEventListener('click', function () { encerrar(true); });
     picker.addEventListener('click', function (event) {
@@ -449,6 +522,19 @@
     abrirAdicionais = abrir;
     document.querySelectorAll('form[data-produto=torta]').forEach(function (form) {
       form._adicionais = [];
+      var campo = form.querySelector('.addons-field');
+      var erro = document.createElement('small');
+      erro.className = 'field-error';
+      erro.id = form.closest('article').id + '-erro-cor-laco';
+      erro.hidden = true;
+      campo.appendChild(erro);
+      form.querySelector('[data-addons-open]').setAttribute('aria-describedby', erro.id);
+      form._adicionaisOk = function () {
+        var valido = !acetatoSemCor(form._adicionais);
+        sinalizarCampo(campo, erro, valido ? '' : 'Escolha a cor do laço em Adicionais e decoração.');
+        form.querySelector('[data-addons-open]').setAttribute('aria-invalid', valido ? 'false' : 'true');
+        return valido;
+      };
       resumo(form);
     });
   }
@@ -691,7 +777,7 @@
     campo.classList.add('field-error-pulse');
     var aviso = form.querySelector('[data-validacao-aviso]');
     if (!aviso) {
-      aviso = document.createElement('span');
+      aviso = document.createElement(form.tagName === 'UL' ? 'li' : 'span');
       aviso.className = 'sr-only';
       aviso.setAttribute('data-validacao-aviso', '');
       aviso.setAttribute('role', 'status');
@@ -1099,7 +1185,7 @@
     campoQtd.appendChild(erroQtd);
     qtd.setAttribute('aria-describedby', erroQtd.id);
     function validarProduto() {
-      [opcaoOk, form._saborOk, morangoOk, tamanhoOk, form._coberturaOk].forEach(function (validar) {
+      [opcaoOk, form._saborOk, morangoOk, tamanhoOk, form._coberturaOk, form._adicionaisOk].forEach(function (validar) {
         if (validar) validar();
       });
       sinalizarCampo(campoQtd, erroQtd, qtd.validity.valid ? '' : 'Informe uma quantidade inteira de 1 a 99.');
@@ -1192,7 +1278,7 @@
         if (i.extras.length) {
           linhas.push('Adicionais por torta' + (i.preco == null ? ':' : ' (já incluídos no valor):'));
           i.extras.forEach(function (extra) {
-            linhas.push('- ' + extra.nome + ' (' + (extra.preco === 0 ? 'Grátis' : moeda(extra.preco)) + ')');
+            linhas.push('- ' + textoAdicional(extra));
           });
         }
         if (i.obs) linhas.push(i.obs);
@@ -1222,6 +1308,10 @@
     linhas.push('Restante: pago na ' + (entrega ? 'entrega' : 'retirada'));
     linhas.push('');
     linhas.push('Recebimento: ' + (dados.recebimento === 'entrega' ? 'Entrega' : 'Retirada'));
+    if (!entrega) {
+      linhas.push('Local de retirada: bairro Bela Vista, Gravatal - SC');
+      linhas.push('A Cakes JL enviará a localização no dia da retirada.');
+    }
     linhas.push((dados.recebimento === 'entrega' ? 'Entrega desejada: ' : 'Retirada desejada: ') +
       dados.data + (dados.hora ? ', ' + dados.hora : '') + ' (a confirmar)');
     linhas.push('Pagamento do sinal: ' + dados.pagamento);
@@ -1584,7 +1674,7 @@
       form.querySelector('[data-rotulo-hora]').textContent = entrega ? 'Horário de entrega' : recebimento ? 'Horário de retirada' : 'Horário desejado';
       form.querySelector('[data-recebimento-dica]').textContent = entrega
         ? 'Combinamos o endereço e a taxa pelo WhatsApp antes de confirmar o pedido.'
-        : recebimento ? 'Retirada no bairro Bela Vista, em Gravatal, em data e horário combinados.' : 'Escolha uma opção para continuar.';
+        : recebimento ? 'Retirada no bairro Bela Vista, Gravatal - SC, em data e horário combinados. A Cakes JL enviará a localização no dia da retirada.' : 'Escolha uma opção para continuar.';
       if (recebimento) mostrarErro('recebimento', '');
       atualizarValores();
     }
@@ -1622,12 +1712,24 @@
           li.innerHTML =
             '<div class="cart-item-main"><strong>' + escapar(i.nome) + '</strong>' +
             (i.detalhes.length ? '<span>' + escapar(i.detalhes.join(' · ')) + '</span>' : '') +
-            (i.extras.length ? '<span>Adicionais: ' + escapar(i.extras.map(function (e) {
-              return e.nome + ' (' + (e.preco === 0 ? 'Grátis' : moeda(e.preco)) + ')';
-            }).join(', ')) + '</span>' : '') +
+            (i.extras.length ? '<span data-cart-extras>Adicionais: ' + escapar(i.extras.map(textoAdicional).join(', ')) + '</span>' : '') +
             (i.obs ? '<span>' + escapar(i.obs) + '</span>' : '') + '</div>' +
             '<div class="cart-item-side"><div class="qty"><button type="button" data-menos aria-label="Diminuir quantidade">−</button><input type="number" name="qtd" min="1" max="99" inputmode="numeric" value="' + i.qtd + '" aria-label="Quantidade"><button type="button" data-mais aria-label="Aumentar quantidade">+</button></div>' +
             '<strong class="cart-item-sub">' + sub + '</strong><button type="button" class="cart-remove" data-remover>Remover</button></div>';
+          // Pedidos anteriores à escolha de cor podem ser completados no próprio carrinho.
+          if (acetatoSemCor(i.extras)) {
+            var campoCor = criarCampoCor('cor-laco-pedido-' + itens.indexOf(i), '');
+            li.querySelector('.cart-item-main').appendChild(campoCor);
+            campoCor.addEventListener('change', function () {
+              var cor = campoCor.querySelector('input:checked');
+              i.extras.forEach(function (extra) {
+                if (extra.nome === 'Acetato com laço') extra.corLaco = cor.value;
+              });
+              gravarPedido(itens);
+              li.querySelector('[data-cart-extras]').textContent = 'Adicionais: ' + i.extras.map(textoAdicional).join(', ');
+              sinalizarCampo(campoCor, campoCor.querySelector('.field-error'), '');
+            });
+          }
           var input = li.querySelector('[name=qtd]');
           function setQtd(n) {
             n = Math.max(1, Math.min(99, n || 1));
@@ -1651,6 +1753,7 @@
       var h = prazoHoras(itens);
       prazoEl.textContent = 'Para este pedido, pedimos pelo menos ' + h + ' horas de antecedência.';
       conferirData();
+      if (form._validacaoTentada) validarCoresPedido();
       atualizarContadores(itens);
     }
     function conferirData() {
@@ -1710,14 +1813,21 @@
       r.addEventListener('change', atualizarPagamento);
     });
     atualizarPagamento();
+    function validarCoresPedido() {
+      lista.querySelectorAll('.ribbon-field').forEach(function (campo) {
+        sinalizarCampo(campo, campo.querySelector('.field-error'),
+          campo.querySelector('input:checked') ? '' : 'Escolha a cor do laço desta torta.');
+      });
+    }
     function validarCheckout() {
+      validarCoresPedido();
       mostrarErro('nome', nomeEl.value.trim().length >= 2 ? '' : 'Informe seu nome para continuar.');
       var recebimento = recebimentoEscolhido();
       mostrarErro('recebimento', recebimento ? '' : 'Escolha retirada ou entrega para continuar.');
       var pag = form.querySelector('[name=pagamento]:checked');
       mostrarErro('pagamento', pag ? '' : 'Escolha como pagar o sinal para continuar.');
       conferirData();
-      return !form.querySelector('.field-invalid');
+      return !form.querySelector('.field-invalid') && !lista.querySelector('.field-invalid');
     }
     ['input', 'change'].forEach(function (tipoEvento) {
       form.addEventListener(tipoEvento, function () {
@@ -1730,7 +1840,7 @@
       var itens = lerPedido();
       if (!itens.length) return;
       form._validacaoTentada = true;
-      if (!validarCheckout()) { levarAoPrimeiroErro(form); return; }
+      if (!validarCheckout()) { levarAoPrimeiroErro(lista.querySelector('.field-invalid') ? lista : form); return; }
       var nome = nomeEl.value.trim();
       var recebimento = recebimentoEscolhido();
       var pag = form.querySelector('[name=pagamento]:checked');
